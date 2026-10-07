@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Aesthetic HP Shopping Tracker</title>
+  <meta name="description" content="Aplikasi mobile tracker belanja supermarket estetik dengan kalkulator budget real-time, perbandingan harga bulan lalu, dan riwayat belanja.">
+  <meta name="theme-color" content="#FAF4E9">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="ShopTracker">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Mockup Mobile Frame (430px x 764px 9:16 Aspect Ratio) -->
+  <main class="mobile-wrapper" id="mobileApp" role="main">
+    
+    <!-- Phone Top Status Bar -->
+    <header class="phone-notch-bar" aria-label="Status Bar">
+      <span id="statusBarClock">09:41</span>
+      <div class="notch-pill" aria-hidden="true"></div>
+      <div style="display:flex; align-items:center; gap:5px;" aria-hidden="true">
+        <svg width="14" height="10" viewBox="0 0 14 10" fill="currentColor">
+          <path d="M1 9h2V7H1v2zm3 0h2V5H4v4zm3 0h2V3H7v6zm3 0h2V1h-2v8z"/>
+        </svg>
+        <span style="font-size:10px;">5G</span>
+        <svg width="16" height="10" viewBox="0 0 16 10" fill="currentColor">
+          <rect x="0" y="1" width="13" height="8" rx="2" fill="none" stroke="currentColor" stroke-width="1.2"/>
+          <rect x="1.5" y="2.5" width="8" height="5" rx="1" fill="currentColor"/>
+          <path d="M14 3.5v3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </header>
+
+    <!-- Global Toast Notification -->
+    <div id="toast" class="toast-msg" role="status" aria-live="polite">Pemberitahuan</div>
+
+    <div class="app-container">
+
+      <!-- ==========================================
+           1. PEMILIHAN SUPERMARKET & BUDGET (SETUP)
+           ========================================== -->
+      <section id="viewSetup" class="view-setup" aria-label="Pengaturan Belanja">
+        <div>
+          <div class="setup-header">
+            <span class="setup-badge">🛒 Smart Grocery Tracker</span>
+            <h1 class="setup-title">Shopping Planner</h1>
+            <p class="setup-subtitle">Atur daerah belanja, supermarket pilihan, dan tentukan batas budget belanja Anda.</p>
+          </div>
+
+          <form id="setupForm" class="setup-form" onsubmit="return false;">
+            <!-- Daerah Selection -->
+            <div class="form-group">
+              <label for="selectRegion" class="form-label">
+                📍 <span>Pilih Daerah</span> <span class="req">*</span>
+              </label>
+              <div class="custom-select-wrap">
+                <select id="selectRegion" class="form-input" required>
+                  <option value="" disabled selected>Pilih kota / daerah...</option>
+                  <option value="Jakarta Pusat">Jakarta Pusat</option>
+                  <option value="Jakarta Selatan">Jakarta Selatan</option>
+                  <option value="Bandung">Bandung</option>
+                  <option value="Surabaya">Surabaya</option>
+                  <option value="Yogyakarta">Yogyakarta</option>
+                  <option value="Denpasar">Denpasar (Bali)</option>
+                </select>
+                <span class="select-arrow">▼</span>
+              </div>
+              <span class="field-hint">Supermarket akan disesuaikan dengan ketersediaan di daerah</span>
+            </div>
+
+            <!-- Supermarket Selection (Filtered by Daerah) -->
+            <div class="form-group">
+              <label for="selectSupermarket" class="form-label">
+                🏪 <span>Supermarket</span> <span class="req">*</span>
+              </label>
+              <div class="custom-select-wrap">
+                <select id="selectSupermarket" class="form-input" disabled required>
+                  <option value="" disabled selected>Pilih daerah terlebih dahulu...</option>
+                </select>
+                <span class="select-arrow">▼</span>
+              </div>
+              <span class="field-hint" id="supermarketHint">Pilihan: Family Mart, Indomaret, Alfamart, Alfamidi</span>
+            </div>
+
+            <!-- Budget Input -->
+            <div class="form-group">
+              <label for="inputBudget" class="form-label">
+                💵 <span>Batas Budget Belanja</span> <span class="req">*</span>
+              </label>
+              <div class="input-wrap">
+                <span class="input-prefix">Rp</span>
+                <input 
+                  type="text" 
+                  id="inputBudget" 
+                  class="form-input has-prefix" 
+                  placeholder="Contoh: 150.000" 
+                  inputmode="numeric"
+                  required
+                >
+              </div>
+              <span class="field-hint">Nominal maksimal yang TIDAK bisa diubah setelah masuk tab belanja</span>
+              
+              <!-- Quick Budget Chips -->
+              <div class="quick-budget-chips">
+                <button type="button" class="chip-btn" data-amount="50000">50 rb</button>
+                <button type="button" class="chip-btn" data-amount="100000">100 rb</button>
+                <button type="button" class="chip-btn" data-amount="200000">200 rb</button>
+                <button type="button" class="chip-btn" data-amount="300000">300 rb</button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="setup-footer">
+          <button type="button" id="btnInstallApp" class="btn-install-pwa" style="display:none;">
+            <span>📲</span>
+            <span>Install Aplikasi ke Layar HP</span>
+          </button>
+          <button type="button" id="btnConfirmSetup" class="btn-confirm" id="btnConfirm">
+            <span id="btnConfirmIcon">🔍</span>
+            <span id="btnConfirmText">Confirm & Cek Promo Database</span>
+          </button>
+          <p style="text-align:center; font-size:10.5px; color:var(--text-brown-muted);">
+            Data harga & diskon akan ditarik otomatis dari database toko
+          </p>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           2. HOMEPAGE DENGAN 3 TAB (STORE, LIST, HISTORY)
+           ========================================== -->
+      <section id="viewMain" class="view-main" style="display: none;" aria-label="Halaman Utama">
+        
+        <!-- Top App Bar Header -->
+        <header class="main-header">
+          <div class="header-left">
+            <div class="store-badge-icon" id="headerStoreIcon">🏪</div>
+            <div>
+              <div class="header-info-title" id="headerStoreName">Indomaret</div>
+              <div class="header-info-sub" id="headerRegionName">Jakarta Pusat</div>
+            </div>
+          </div>
+
+          <div class="header-right">
+            <!-- Budget Pill -->
+            <div class="budget-pill" id="budgetPillBox" title="Sisa budget belanja">
+              <span class="budget-pill-label">Sisa Budget</span>
+              <span class="budget-pill-value" id="headerRemainingBudget">Rp 0</span>
+            </div>
+
+            <!-- Log out Button -->
+            <button type="button" id="btnLogout" class="btn-logout" title="Log out untuk ganti supermarket atau budget">
+              <span>↩</span>
+              <span>Log out</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- 3 Tabs Navigation di Kiri / Atas (Store, List, History) -->
+        <nav class="tab-navigation" aria-label="Navigasi Halaman">
+          <button type="button" class="tab-btn active" data-tab="tabStore" id="navTabStore">
+            <span>🏷️</span>
+            <span>Store</span>
+          </button>
+          
+          <button type="button" class="tab-btn" data-tab="tabList" id="navTabList">
+            <span>📝</span>
+            <span>List</span>
+            <span class="tab-badge" id="cartCountBadge" style="display:none;">0</span>
+          </button>
+
+          <button type="button" class="tab-btn" data-tab="tabHistory" id="navTabHistory">
+            <span>📜</span>
+            <span>History</span>
+          </button>
+        </nav>
+
+        <!-- Tab Views Area -->
+        <div class="tab-views-container">
+          
+          <!-- TAB 1: STORE -->
+          <div id="tabStore" class="tab-content active" role="tabpanel">
+            <div class="store-tab-scroll">
+              <div class="store-banner">
+                <div class="store-banner-text">
+                  Katalog Resmi <b id="bannerStoreName">Indomaret</b>
+                </div>
+                <div class="legend-chips" title="Perbandingan harga bulan lalu">
+                  <span class="legend-tag up">⬆ Naik</span>
+                  <span class="legend-tag down">⬇︎ Turun</span>
+                  <span class="legend-tag same">= Tetap</span>
+                </div>
+              </div>
+
+              <!-- List of Products (Tiles) -->
+              <div id="storeProductsList" style="display:flex; flex-direction:column; gap:10px;">
+                <!-- Product cards rendered dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: LIST -->
+          <div id="tabList" class="tab-content" role="tabpanel">
+            <div class="list-tab-scroll" id="cartItemsContainer">
+              <!-- Cart items rendered dynamically -->
+            </div>
+
+            <!-- Di paling bawah layer: Border warna #F3E4C9 dengan fading font coklat (#622B14) ke merah -->
+            <div class="list-bottom-bar" id="listBottomBar">
+              <!-- Visual Budget Bar -->
+              <div class="budget-progress-container" title="Penggunaan budget">
+                <div class="budget-progress-fill" id="budgetProgressBar"></div>
+              </div>
+
+              <div class="list-bottom-content">
+                <div class="total-price-section">
+                  <span class="total-price-label">Total Belanja</span>
+                  <span class="dynamic-total-price" id="dynamicTotalPrice">Rp 0</span>
+                </div>
+
+                <button type="button" id="btnCheckout" class="btn-checkout" disabled>
+                  <span>🔒</span>
+                  <span>Checkout</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 3: HISTORY -->
+          <div id="tabHistory" class="tab-content" role="tabpanel">
+            <div class="history-tab-scroll" id="historyContainer">
+              <!-- History tiles rendered dynamically -->
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Modal Checkout Confirmation / Receipt -->
+    <div id="checkoutModal" class="modal-overlay" role="dialog" aria-modal="true">
+      <div class="modal-card">
+        <div class="modal-icon-circle">✓</div>
+        <h3 class="modal-title">Checkout Berhasil!</h3>
+        <p class="modal-desc">Daftar belanja Anda telah dikunci dan tersimpan rapi di tab <b>History</b>.</p>
+        
+        <div class="modal-receipt-box">
+          <div class="receipt-row">
+            <span>Supermarket</span>
+            <span id="modalStoreName" style="font-weight:700;">-</span>
+          </div>
+          <div class="receipt-row">
+            <span>Total Item</span>
+            <span id="modalTotalItems" style="font-weight:700;">0 pcs</span>
+          </div>
+          <div class="receipt-row">
+            <span>Sisa Saldo Budget</span>
+            <span id="modalRemainingBudget" style="font-weight:700; color:var(--accent-success);">-</span>
+          </div>
+          <div class="receipt-row bold">
+            <span>Total Transaksi</span>
+            <span id="modalTotalSpent">-</span>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="modal-btn primary" id="btnModalClose">Lihat History</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Logout Confirmation -->
+    <div id="logoutModal" class="modal-overlay" role="dialog" aria-modal="true">
+      <div class="modal-card">
+        <div class="modal-icon-circle" style="background:#FEE2E2; color:#DC2626;">⚠️</div>
+        <h3 class="modal-title">Keluar ke Pengaturan?</h3>
+        <p class="modal-desc">Apakah Anda yakin ingin log out? Daftar belanja yang belum di-checkout akan direset.</p>
+        
+        <div class="modal-actions">
+          <button type="button" class="modal-btn secondary" id="btnCancelLogout">Batal</button>
+          <button type="button" class="modal-btn primary" id="btnConfirmLogout" style="background:#DC2626;">Ya, Log Out</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Petunjuk Install iOS Safari -->
+    <div id="iosInstallModal" class="modal-overlay" role="dialog" aria-modal="true">
+      <div class="modal-card">
+        <div class="modal-icon-circle" style="background:#FAF4E9; color:var(--text-brown-primary); font-size:24px;">📱</div>
+        <h3 class="modal-title">Pasang di iPhone / iPad</h3>
+        <p class="modal-desc">Pasang aplikasi ini ke layar utama iPhone Anda tanpa melalui App Store:</p>
+        
+        <div class="modal-receipt-box" style="gap:10px;">
+          <div style="display:flex; align-items:flex-start; gap:8px;">
+            <span style="font-weight:800; color:var(--text-brown-primary);">1.</span>
+            <span>Ketuk tombol <b>Bagikan (Share)</b> di bilah bawah browser Safari <span style="font-size:14px;">⎋</span>.</span>
+          </div>
+          <div style="display:flex; align-items:flex-start; gap:8px;">
+            <span style="font-weight:800; color:var(--text-brown-primary);">2.</span>
+            <span>Geser ke bawah dan pilih <b>"Tambahkan ke Layar Utama" (Add to Home Screen)</b> ➕.</span>
+          </div>
+          <div style="display:flex; align-items:flex-start; gap:8px;">
+            <span style="font-weight:800; color:var(--text-brown-primary);">3.</span>
+            <span>Ketuk <b>Tambah (Add)</b> di pojok kanan atas layar. Selesai!</span>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="modal-btn primary" id="btnCloseIosModal">Mengerti</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
