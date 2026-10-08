@@ -49,38 +49,22 @@
           <div class="setup-header">
             <span class="setup-badge">🛒 Smart Grocery Tracker</span>
             <h1 class="setup-title">Shopping Planner</h1>
-            <p class="setup-subtitle">Atur daerah belanja, supermarket pilihan, dan tentukan batas budget belanja Anda.</p>
+            <p class="setup-subtitle">Pilih supermarket dan tentukan batas budget belanja Anda.</p>
           </div>
 
           <form id="setupForm" class="setup-form" onsubmit="return false;">
-            <!-- Daerah Selection -->
-            <div class="form-group">
-              <label for="selectRegion" class="form-label">
-                📍 <span>Pilih Daerah</span> <span class="req">*</span>
-              </label>
-              <div class="custom-select-wrap">
-                <select id="selectRegion" class="form-input" required>
-                  <option value="" disabled selected>Pilih kota / daerah...</option>
-                  <option value="Jakarta Pusat">Jakarta Pusat</option>
-                  <option value="Jakarta Selatan">Jakarta Selatan</option>
-                  <option value="Bandung">Bandung</option>
-                  <option value="Surabaya">Surabaya</option>
-                  <option value="Yogyakarta">Yogyakarta</option>
-                  <option value="Denpasar">Denpasar (Bali)</option>
-                </select>
-                <span class="select-arrow">▼</span>
-              </div>
-              <span class="field-hint">Supermarket akan disesuaikan dengan ketersediaan di daerah</span>
-            </div>
-
-            <!-- Supermarket Selection (Filtered by Daerah) -->
+            <!-- Supermarket Selection -->
             <div class="form-group">
               <label for="selectSupermarket" class="form-label">
-                🏪 <span>Supermarket</span> <span class="req">*</span>
+                🏪 <span>Pilih Supermarket</span> <span class="req">*</span>
               </label>
               <div class="custom-select-wrap">
-                <select id="selectSupermarket" class="form-input" disabled required>
-                  <option value="" disabled selected>Pilih daerah terlebih dahulu...</option>
+                <select id="selectSupermarket" class="form-input" required>
+                  <option value="" disabled selected>Pilih supermarket...</option>
+                  <option value="Family Mart">Family Mart</option>
+                  <option value="Indomaret">Indomaret</option>
+                  <option value="Alfamart">Alfamart</option>
+                  <option value="Alfamidi">Alfamidi</option>
                 </select>
                 <span class="select-arrow">▼</span>
               </div>
@@ -121,7 +105,7 @@
             <span>📲</span>
             <span>Install Aplikasi ke Layar HP</span>
           </button>
-          <button type="button" id="btnConfirmSetup" class="btn-confirm" id="btnConfirm">
+          <button type="button" id="btnConfirmSetup" class="btn-confirm">
             <span id="btnConfirmIcon">🔍</span>
             <span id="btnConfirmText">Confirm & Cek Promo Database</span>
           </button>
@@ -142,7 +126,7 @@
             <div class="store-badge-icon" id="headerStoreIcon">🏪</div>
             <div>
               <div class="header-info-title" id="headerStoreName">Indomaret</div>
-              <div class="header-info-sub" id="headerRegionName">Jakarta Pusat</div>
+              <div class="header-info-sub" id="headerRegionName">Katalog Resmi</div>
             </div>
           </div>
 
@@ -194,6 +178,32 @@
                   <span class="legend-tag up">⬆ Naik</span>
                   <span class="legend-tag down">⬇︎ Turun</span>
                   <span class="legend-tag same">= Tetap</span>
+                </div>
+              </div>
+
+              <!-- Filter Jenis Barang (Category Filter Bar) -->
+              <div class="category-filter-wrap" role="toolbar" aria-label="Filter Jenis Barang">
+                <div class="category-filter-bar" id="categoryFilterBar">
+                  <button type="button" class="category-chip active" data-category="all" id="filterAll" title="Tampilkan semua barang">
+                    <span class="category-icon">✨</span>
+                    <span class="category-label">All</span>
+                    <span class="category-count" id="countAll">0</span>
+                  </button>
+                  <button type="button" class="category-chip" data-category="Minuman" id="filterMinuman" title="Filter Minuman">
+                    <span class="category-icon">🥤</span>
+                    <span class="category-label">Minuman</span>
+                    <span class="category-count" id="countMinuman">0</span>
+                  </button>
+                  <button type="button" class="category-chip" data-category="Makanan" id="filterMakanan" title="Filter Makanan">
+                    <span class="category-icon">🍲</span>
+                    <span class="category-label">Makanan</span>
+                    <span class="category-count" id="countMakanan">0</span>
+                  </button>
+                  <button type="button" class="category-chip" data-category="Alat mandi" id="filterAlatMandi" title="Filter Alat Mandi">
+                    <span class="category-icon">🧼</span>
+                    <span class="category-label">Alat Mandi</span>
+                    <span class="category-count" id="countAlatMandi">0</span>
+                  </button>
                 </div>
               </div>
 

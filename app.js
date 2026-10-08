@@ -2,14 +2,6 @@
 // Shopping Tracker Data & Logic (Aesthetic Cream & Brown Mobile App)
 // ====================================================================
 
-const REGION_SUPERMARKETS = {
-  "Jakarta Pusat": ["Family Mart", "Indomaret", "Alfamart", "Alfamidi"],
-  "Jakarta Selatan": ["Family Mart", "Indomaret", "Alfamart", "Alfamidi"],
-  "Bandung": ["Indomaret", "Alfamart", "Alfamidi"],
-  "Surabaya": ["Family Mart", "Indomaret", "Alfamart", "Alfamidi"],
-  "Yogyakarta": ["Indomaret", "Alfamart"],
-  "Denpasar": ["Indomaret", "Alfamart", "Alfamidi"]
-};
 
 const SUPERMARKET_PRODUCTS = {
   "Family Mart": [
@@ -346,7 +338,6 @@ const SUPERMARKET_PRODUCTS = {
    STATE MANAGEMENT
    ==================================================================== */
 const state = {
-  region: '',
   supermarket: '',
   initialBudget: 0,
   cart: [],
@@ -379,7 +370,6 @@ const viewSetup = document.getElementById('viewSetup');
 const viewMain = document.getElementById('viewMain');
 
 // Setup form
-const selectRegion = document.getElementById('selectRegion');
 const selectSupermarket = document.getElementById('selectSupermarket');
 const inputBudget = document.getElementById('inputBudget');
 const btnConfirmSetup = document.getElementById('btnConfirmSetup');
@@ -518,28 +508,8 @@ function updateBudgetAndColors() {
 }
 
 /* ====================================================================
-   1. SETUP LOGIC (Daerah, Supermarket, Budget, Confirm)
+   1. SETUP LOGIC (Supermarket, Budget, Confirm)
    ==================================================================== */
-selectRegion.addEventListener('change', () => {
-  const selectedRegion = selectRegion.value;
-  state.region = selectedRegion;
-
-  selectSupermarket.innerHTML = '<option value="" disabled selected>Pilih supermarket...</option>';
-
-  const availableStores = REGION_SUPERMARKETS[selectedRegion] || [];
-  if (availableStores.length > 0) {
-    availableStores.forEach(store => {
-      const option = document.createElement('option');
-      option.value = store;
-      option.textContent = store;
-      selectSupermarket.appendChild(option);
-    });
-    selectSupermarket.disabled = false;
-  } else {
-    selectSupermarket.disabled = true;
-  }
-});
-
 inputBudget.addEventListener('input', (e) => {
   const parsed = parseRupiahInput(e.target.value);
   if (parsed > 0) {
@@ -560,22 +530,16 @@ chipButtons.forEach(btn => {
 });
 
 btnConfirmSetup.addEventListener('click', async () => {
-  const region = selectRegion.value;
   const supermarket = selectSupermarket.value;
   const budget = parseRupiahInput(inputBudget.value);
 
-  if (!region) {
-    showToast('Silakan pilih daerah terlebih dahulu!', 'error');
-    selectRegion.focus();
-    return;
-  }
   if (!supermarket) {
-    showToast('Silakan pilih supermarket!', 'error');
+    showToast('Silakan pilih supermarket terlebih dahulu!', 'error');
     selectSupermarket.focus();
     return;
   }
   if (!budget || budget <= 0) {
-    showToast('Silakan ketik batas nominal budget belanja!', 'error');
+    showToast('Silakan tentukan batas budget belanja!', 'error');
     inputBudget.focus();
     return;
   }
@@ -592,14 +556,15 @@ btnConfirmSetup.addEventListener('click', async () => {
 
   await new Promise(res => setTimeout(res, 400));
 
-  state.region = region;
   state.supermarket = supermarket;
   state.initialBudget = budget;
   state.cart = [];
 
   headerStoreName.textContent = state.supermarket;
   bannerStoreName.textContent = state.supermarket;
-  headerRegionName.textContent = state.region;
+  if (headerRegionName) {
+    headerRegionName.textContent = 'Katalog Resmi';
+  }
   headerStoreIcon.textContent = getStoreEmoji(state.supermarket);
 
   renderStoreProducts();
