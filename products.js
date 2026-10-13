@@ -18,17 +18,17 @@ export const SUPERMARKET_PRODUCTS = {
       discount: 0.20, // 20%
       trend: "down", // ⬇︎ green
       lastMonthPrice: 20000,
-      image: "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=200&auto=format&fit=crop&q=80"
+      image: "https://www.familymartindonesia.com/static/media/americano-series.d11b5f2c8c8fa083d3f0.png"
     },
     {
       id: "fm-2",
-      name: "Crispy Chicken Sambal Matah",
+      name: "Crispy chicken korean buldak",
       category: "Makanan Siap Saji",
       price: 26000,
       discount: 0.15, // 15%
       trend: "up", // ⬆ red
       lastMonthPrice: 24000,
-      image: "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=200&auto=format&fit=crop&q=80"
+      image: "https://www.familymartindonesia.com/static/media/chrispy-chicken-korean-buldak.8cbf3b7cf8f3c70f0e80.png"
     },
     {
       id: "fm-3",
@@ -62,13 +62,13 @@ export const SUPERMARKET_PRODUCTS = {
     },
     {
       id: "fm-6",
-      name: "Pocky Biskuit Cokelat Stik",
+      name: "Choco Mania",
       category: "Snack",
-      price: 10500,
-      discount: 0.10,
-      trend: "up",
-      lastMonthPrice: 9500,
-      image: "https://images.unsplash.com/photo-1582293041079-7814c2f12063?w=200&auto=format&fit=crop&q=80"
+      price: 8900,
+      discount: 0.11, // 11% ((10000 - 8900) / 10000)
+      trend: "down",
+      lastMonthPrice: 10000,
+      image: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=200&auto=format&fit=crop&q=80"
     },
     {
       id: "fm-7",
