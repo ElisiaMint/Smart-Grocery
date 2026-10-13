@@ -1,0 +1,8 @@
+{
+    "scripts": {
+        "lint": "eslint . && stylelint \"**/*.css\"",
+        "build": "rm -rf dist && mkdir dist && terser src/app.js -o dist/app.min.js && clean-css-cli -o dist/style.min.css src/style.css && html-minifier-terser src/index.html -o dist/index.html --collapse-whitespace",
+        "predeploy": "npm run lint && npm run build",
+        "deploy": "firebase deploy --only hosting"
+    }
+}
