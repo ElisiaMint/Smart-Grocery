@@ -903,6 +903,17 @@ btnCheckout.addEventListener('click', () => {
   state.history.unshift(historyRecord);
   saveHistoryToStorage();
 
+  // Sinkronisasi transaksi ke Cloud Firestore
+  if (window.FirebaseTracker && typeof window.FirebaseTracker.saveOrderToFirestore === 'function') {
+    window.FirebaseTracker.saveOrderToFirestore(historyRecord).then(result => {
+      if (result && result.success) {
+        showToast('Tersimpan di Firebase Cloud! ☁️', 'success');
+      }
+    }).catch(err => {
+      console.warn('Gagal sinkron Firebase Firestore:', err);
+    });
+  }
+
   modalStoreName.textContent = state.supermarket;
   modalTotalItems.textContent = `${totalPcs} item`;
   modalRemainingBudget.textContent = formatRupiah(remaining);
@@ -1008,6 +1019,43 @@ function loadHistoryFromStorage() {
 }
 
 loadHistoryFromStorage();
+
+// Sinkronisasi Real-time dengan Firebase Firestore
+function setupFirebaseSync() {
+  if (window.FirebaseTracker && typeof window.FirebaseTracker.subscribeShoppingHistory === 'function') {
+    window.FirebaseTracker.subscribeShoppingHistory((cloudOrders) => {
+      if (cloudOrders && cloudOrders.length > 0) {
+        console.log(`☁️ Berhasil memuat ${cloudOrders.length} riwayat belanja dari Firebase Firestore`);
+        state.history = cloudOrders;
+        saveHistoryToStorage();
+        if (state.activeTab === 'tabHistory') {
+          renderHistory();
+        }
+      }
+      const chip = document.getElementById('firebaseStatusChip');
+      if (chip) {
+        chip.className = 'firebase-status-chip synced';
+        chip.textContent = '🔥 Cloud Synced';
+      }
+    }, (err) => {
+      console.warn('Firebase sync notice:', err.message || err);
+      const chip = document.getElementById('firebaseStatusChip');
+      if (chip) {
+        chip.className = 'firebase-status-chip';
+        chip.textContent = '⚡ Local Mode';
+      }
+    });
+  }
+}
+
+if (window.FirebaseTracker && window.FirebaseTracker.isReady) {
+  setupFirebaseSync();
+} else {
+  window.addEventListener('firebase:ready', () => {
+    setupFirebaseSync();
+  });
+}
+
 
 /* ====================================================================
    PWA & APP INSTALLATION SUPPORT
