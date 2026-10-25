@@ -571,6 +571,8 @@ btnConfirmSetup.addEventListener('click', async () => {
   renderCart();
   updateBudgetAndColors();
 
+  saveSessionToStorage();
+
   viewSetup.style.display = 'none';
   viewMain.style.display = 'flex';
   switchTab('tabStore');
@@ -597,6 +599,7 @@ btnConfirmLogout.addEventListener('click', () => {
   logoutModal.classList.remove('show');
   state.cart = [];
   state.initialBudget = 0;
+  localStorage.removeItem('hp_shopping_session');
   viewMain.style.display = 'none';
   viewSetup.style.display = 'flex';
   showToast('Sesi belanja diakhiri. Silakan atur kembali.');
@@ -923,6 +926,7 @@ btnCheckout.addEventListener('click', () => {
   // Perbarui budget agar tetap di jumlah yang sudah terpotong setelah checkout
   state.initialBudget = remaining;
   state.cart = [];
+  saveSessionToStorage();
   renderCart();
   updateBudgetAndColors();
 
@@ -1023,7 +1027,46 @@ function loadHistoryFromStorage() {
   }
 }
 
+function saveSessionToStorage() {
+  try {
+    localStorage.setItem('hp_shopping_session', JSON.stringify({
+      supermarket: state.supermarket,
+      initialBudget: state.initialBudget
+    }));
+  } catch (e) {
+    console.error('Failed to save session', e);
+  }
+}
+
+function loadSessionFromStorage() {
+  try {
+    const raw = localStorage.getItem('hp_shopping_session');
+    if (raw) {
+      const saved = JSON.parse(raw);
+      if (saved && saved.supermarket && saved.initialBudget > 0) {
+        state.supermarket = saved.supermarket;
+        state.initialBudget = saved.initialBudget;
+        headerStoreName.textContent = state.supermarket;
+        bannerStoreName.textContent = state.supermarket;
+        if (headerRegionName) headerRegionName.textContent = 'Katalog Resmi';
+        headerStoreIcon.textContent = getStoreEmoji(state.supermarket);
+
+        renderStoreProducts();
+        renderCart();
+        updateBudgetAndColors();
+
+        viewSetup.style.display = 'none';
+        viewMain.style.display = 'flex';
+        switchTab('tabStore');
+      }
+    }
+  } catch (e) {
+    console.error('Failed to load session', e);
+  }
+}
+
 loadHistoryFromStorage();
+loadSessionFromStorage();
 
 // Sinkronisasi Real-time dengan Firebase Firestore
 function setupFirebaseSync() {
@@ -1090,7 +1133,10 @@ if (btnInstallApp && !isInStandaloneMode()) {
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
-      .then((reg) => console.log('PWA Service Worker registered:', reg.scope))
+      .then((reg) => {
+        console.log('PWA Service Worker registered:', reg.scope);
+        if (reg.update) reg.update();
+      })
       .catch((err) => console.log('Service Worker registration skipped:', err));
   });
 }
