@@ -801,6 +801,44 @@ select.form-input:focus, input.form-input:focus {
   color: var(--accent-danger);
 }
 
+.product-header-line {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+
+.trend-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.trend-badge.up {
+  color: var(--accent-danger);
+  background-color: #FEE2E2;
+  border: 1px solid #FECACA;
+}
+
+.trend-badge.down {
+  color: var(--accent-success);
+  background-color: #DCFCE7;
+  border: 1px solid #BBF7D0;
+}
+
+.trend-badge.same {
+  color: #92400E;
+  background-color: #FEF3C7;
+  border: 1px solid #FDE68A;
+}
+
 .trend-emote {
   display: inline-flex;
   align-items: center;
