@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# Firebase local cache & logs
+.firebase/
+
+# Agent skills & cache
+.agents/
+
+# System / IDE
+.DS_Store
+Thumbs.db
