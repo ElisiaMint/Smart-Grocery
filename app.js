@@ -425,6 +425,18 @@ const btnConfirmAddProduct = document.getElementById('btnConfirmAddProduct');
 
 const statusBarClock = document.getElementById('statusBarClock');
 
+// Search & Filter elements
+const inputSearchProduct = document.getElementById('inputSearchProduct');
+const btnClearSearch = document.getElementById('btnClearSearch');
+const categoryChips = document.querySelectorAll('.category-chip');
+const countAll = document.getElementById('countAll');
+const countMinuman = document.getElementById('countMinuman');
+const countMakanan = document.getElementById('countMakanan');
+const countAlatMandi = document.getElementById('countAlatMandi');
+
+let storeSearchQuery = '';
+let activeStoreCategory = 'all';
+
 /* ====================================================================
    HELPERS & NOTIFICATIONS
    ==================================================================== */
@@ -654,18 +666,69 @@ function renderStoreProducts() {
   const products = SUPERMARKET_PRODUCTS[state.supermarket] || [];
   storeProductsList.innerHTML = '';
 
-  if (products.length === 0) {
-    storeProductsList.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-state-icon">📦</div>
-        <div class="empty-state-title">Katalog Kosong</div>
-        <div class="empty-state-sub">Belum ada barang di supermarket ini.</div>
-      </div>
-    `;
+  // Update category badge counts
+  if (countAll) countAll.textContent = products.length;
+  if (countMinuman) countMinuman.textContent = products.filter(p => p.category && p.category.toLowerCase().includes('minum')).length;
+  if (countMakanan) countMakanan.textContent = products.filter(p => p.category && p.category.toLowerCase().includes('makan')).length;
+  if (countAlatMandi) countAlatMandi.textContent = products.filter(p => p.category && (p.category.toLowerCase().includes('mandi') || p.category.toLowerCase().includes('alat'))).length;
+
+  const query = (storeSearchQuery || '').toLowerCase().trim();
+  const filtered = products.filter(prod => {
+    // 1. Category filter
+    let matchesCategory = true;
+    if (activeStoreCategory !== 'all') {
+      const cat = (prod.category || '').toLowerCase();
+      if (activeStoreCategory === 'Minuman') {
+        matchesCategory = cat.includes('minum');
+      } else if (activeStoreCategory === 'Makanan') {
+        matchesCategory = cat.includes('makan');
+      } else if (activeStoreCategory === 'Alat mandi') {
+        matchesCategory = cat.includes('mandi') || cat.includes('alat');
+      } else {
+        matchesCategory = cat === activeStoreCategory.toLowerCase();
+      }
+    }
+
+    // 2. Search query filter
+    let matchesSearch = true;
+    if (query) {
+      const nameMatch = prod.name.toLowerCase().includes(query);
+      const catMatch = (prod.category || '').toLowerCase().includes(query);
+      matchesSearch = nameMatch || catMatch;
+    }
+
+    return matchesCategory && matchesSearch;
+  });
+
+  if (filtered.length === 0) {
+    if (query) {
+      const safeQuery = query.replace(/[&<>"']/g, m => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      }[m]));
+      storeProductsList.innerHTML = `
+        <div class="empty-state" style="padding: 28px 14px; text-align: center;">
+          <div class="empty-state-icon" style="font-size: 38px; margin-bottom: 8px;">🔍</div>
+          <div class="empty-state-title" style="font-size: 15px; font-weight: 700; color: #622B14; margin-bottom: 4px;">Produk Tidak Ditemukan</div>
+          <div class="empty-state-sub" style="font-size: 12.5px; color: #8C6A58;">Tidak ada produk dengan kata kunci "<b>${safeQuery}</b>" di katalog ${state.supermarket}.</div>
+        </div>
+      `;
+    } else {
+      storeProductsList.innerHTML = `
+        <div class="empty-state" style="padding: 28px 14px; text-align: center;">
+          <div class="empty-state-icon" style="font-size: 38px; margin-bottom: 8px;">📦</div>
+          <div class="empty-state-title" style="font-size: 15px; font-weight: 700; color: #622B14; margin-bottom: 4px;">Katalog Kosong</div>
+          <div class="empty-state-sub" style="font-size: 12.5px; color: #8C6A58;">Belum ada barang di kategori ini.</div>
+        </div>
+      `;
+    }
     return;
   }
 
-  products.forEach(prod => {
+  filtered.forEach(prod => {
     const hasDiscount = prod.discount > 0;
     const harga2 = hasDiscount ? Math.round(prod.price - (prod.discount * prod.price)) : prod.price;
 
@@ -721,6 +784,38 @@ function renderStoreProducts() {
     storeProductsList.appendChild(card);
   });
 }
+
+// Search and Category Filter Listeners
+if (inputSearchProduct) {
+  inputSearchProduct.addEventListener('input', (e) => {
+    storeSearchQuery = e.target.value;
+    if (btnClearSearch) {
+      btnClearSearch.style.display = storeSearchQuery.trim() ? 'flex' : 'none';
+    }
+    renderStoreProducts();
+  });
+}
+
+if (btnClearSearch) {
+  btnClearSearch.addEventListener('click', () => {
+    storeSearchQuery = '';
+    if (inputSearchProduct) {
+      inputSearchProduct.value = '';
+      inputSearchProduct.focus();
+    }
+    btnClearSearch.style.display = 'none';
+    renderStoreProducts();
+  });
+}
+
+categoryChips.forEach(chip => {
+  chip.addEventListener('click', () => {
+    categoryChips.forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    activeStoreCategory = chip.dataset.category || 'all';
+    renderStoreProducts();
+  });
+});
 
 /* ====================================================================
    TAMBAH PRODUK BARU SECARA PERMANEN (TOMBOL KANCING & POP-UP)
