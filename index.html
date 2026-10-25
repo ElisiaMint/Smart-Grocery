@@ -218,6 +218,11 @@
                 <!-- Product cards rendered dynamically -->
               </div>
             </div>
+
+            <!-- Tombol Kancing Tambah Produk (Lingkaran kecil simbol X menyerupai kancing cream ke-orenan) -->
+            <button type="button" class="btn-kancing-add" id="btnToggleAddProduct" title="Tambah produk baru" aria-label="Tambah produk baru">
+              <span class="kancing-icon" id="kancingIcon">✕</span>
+            </button>
           </div>
 
           <!-- TAB 2: LIST -->
@@ -291,6 +296,57 @@
       </div>
     </div>
 
+    <!-- Modal Pop-up Tambah Produk Baru -->
+    <div id="addProductModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="addProductModalTitle">
+      <div class="modal-card">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div class="modal-icon-circle" style="width:42px; height:42px; margin:0; background:#FFEAD9; color:#9A3412; font-size:20px;">🏷️</div>
+          <div>
+            <h3 class="modal-title" id="addProductModalTitle" style="text-align:left; font-size:16px;">Tambah Produk Baru</h3>
+            <p class="modal-desc" style="text-align:left; font-size:11.5px; margin-top:2px;">Tersimpan permanen di katalog supermarket ini.</p>
+          </div>
+        </div>
+
+        <form id="formAddProduct" style="display:flex; flex-direction:column; gap:12px; margin-top:6px;" onsubmit="return false;">
+          <div class="form-group">
+            <label for="inputCustomProductName" class="form-label">
+              <span>Nama Produk</span> <span class="req">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="inputCustomProductName" 
+              class="form-input" 
+              placeholder="Contoh: Susu Kedelai 1L" 
+              maxlength="50"
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="inputCustomProductPrice" class="form-label">
+              <span>Harga Produk</span> <span class="req">*</span>
+            </label>
+            <div class="input-wrap">
+              <span class="input-prefix">Rp</span>
+              <input 
+                type="text" 
+                id="inputCustomProductPrice" 
+                class="form-input has-prefix" 
+                placeholder="0" 
+                inputmode="numeric" 
+                autocomplete="off"
+              >
+            </div>
+          </div>
+
+          <div class="modal-actions-right">
+            <button type="button" class="modal-btn secondary" id="btnCancelAddProduct">Batal</button>
+            <button type="button" class="btn-confirm-add" id="btnConfirmAddProduct">Confirm</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- Modal Logout Confirmation -->
     <div id="logoutModal" class="modal-overlay" role="dialog" aria-modal="true">
       <div class="modal-card">
@@ -338,6 +394,6 @@
   <!-- Load Firebase Module First -->
   <script type="module" src="firebase.js"></script>
   <!-- Load Main Application Logic -->
-  <script src="app.js?v=2.4"></script>
+  <script src="app.js?v=2.5"></script>
 </body>
 </html>
