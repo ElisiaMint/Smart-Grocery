@@ -560,6 +560,7 @@ select.form-input:focus, input.form-input:focus {
   display: none;
   height: 100%;
   flex-direction: column;
+  position: relative;
 }
 
 .tab-content.active {
@@ -1464,5 +1465,99 @@ select.form-input:focus, input.form-input:focus {
   color: #065F46;
   border-color: #A7F3D0;
   background: #ECFDF5;
+}
+
+/* ====================================================================
+   TOMBOL KANCING TAMBAH PRODUK (Floating Button)
+   Lingkaran kecil menyerupai kancing warna cream ke-orenan sedikit
+   ==================================================================== */
+.btn-kancing-add {
+  position: absolute;
+  bottom: 18px;
+  right: 18px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  /* Gradien warna cream ke-orenan menyerupai kancing estetik */
+  background: radial-gradient(circle at 35% 35%, #FFF4E8 0%, #FCE0C7 55%, #F4CAAA 100%);
+  border: 2px solid #E3AF8B;
+  box-shadow: 0 4px 16px rgba(184, 98, 48, 0.32), 
+              inset 0 1.5px 2px rgba(255, 255, 255, 0.95), 
+              inset 0 -2.5px 4px rgba(160, 80, 32, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 25;
+  outline: none;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+}
+
+/* Faux stitch / inner rim kancing pakaian */
+.btn-kancing-add::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(160, 80, 32, 0.28);
+  pointer-events: none;
+}
+
+.btn-kancing-add:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(184, 98, 48, 0.42), 
+              inset 0 1.5px 2px rgba(255, 255, 255, 0.95);
+}
+
+.btn-kancing-add:active {
+  transform: scale(0.93);
+}
+
+.kancing-icon {
+  display: inline-block;
+  font-size: 20px;
+  font-weight: 800;
+  color: #622B14;
+  line-height: 1;
+  /* Rotasi 45 derajat halus: dari '✕' menjadi '+' */
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform: rotate(0deg);
+  user-select: none;
+}
+
+/* Saat aktif / pop up terbuka, berputar 45 derajat ke kanan */
+.btn-kancing-add.rotated .kancing-icon {
+  transform: rotate(45deg);
+}
+
+.modal-actions-right {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.btn-confirm-add {
+  padding: 10px 22px;
+  background: linear-gradient(135deg, #7A3519, #562410);
+  color: #FFFDF9;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-main);
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(98, 43, 20, 0.22);
+  transition: all 0.2s ease;
+}
+
+.btn-confirm-add:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(98, 43, 20, 0.3);
+}
+
+.btn-confirm-add:active {
+  transform: translateY(0);
 }
 
