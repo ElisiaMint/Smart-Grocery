@@ -983,9 +983,6 @@ function renderHistory() {
       const itemTotal = item.effectivePrice * item.quantity;
 
       itemRow.innerHTML = `
-        <div class="history-item-img">
-          <img src="${item.image}" alt="${item.name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=200&auto=format&fit=crop&q=80'">
-        </div>
         <div class="history-item-info">
           <div class="history-item-name">${item.name}</div>
           <div class="history-item-sub">
