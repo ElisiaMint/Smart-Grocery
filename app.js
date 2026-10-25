@@ -596,6 +596,7 @@ btnCancelLogout.addEventListener('click', () => {
 btnConfirmLogout.addEventListener('click', () => {
   logoutModal.classList.remove('show');
   state.cart = [];
+  state.initialBudget = 0;
   viewMain.style.display = 'none';
   viewSetup.style.display = 'flex';
   showToast('Sesi belanja diakhiri. Silakan atur kembali.');
@@ -919,13 +920,17 @@ btnCheckout.addEventListener('click', () => {
   modalRemainingBudget.textContent = formatRupiah(remaining);
   modalTotalSpent.textContent = formatRupiah(totalSpent);
 
+  // Perbarui budget agar tetap di jumlah yang sudah terpotong setelah checkout
+  state.initialBudget = remaining;
+  state.cart = [];
+  renderCart();
+  updateBudgetAndColors();
+
   checkoutModal.classList.add('show');
 });
 
 btnModalClose.addEventListener('click', () => {
   checkoutModal.classList.remove('show');
-  state.cart = [];
-  updateBudgetAndColors();
   switchTab('tabHistory');
 });
 
