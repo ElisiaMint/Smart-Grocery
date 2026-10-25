@@ -617,6 +617,78 @@ select.form-input:focus, input.form-input:focus {
 .legend-tag.down { background: #E8F5E9; color: var(--accent-success); }
 .legend-tag.same { background: #FEF3C7; color: var(--accent-warning); }
 
+/* ====================================================================
+   MENU PENCARIAN PRODUK (SEARCH BAR)
+   Ditempatkan di bawah tulisan Katalog Resmi
+   ==================================================================== */
+.store-search-wrap {
+  width: 100%;
+  margin: 1px 0 2px;
+}
+
+.store-search-box {
+  width: 100%;
+  background: #FFFFFF;
+  border: 1.5px solid var(--bg-cream-border);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  padding: 8px 14px;
+  gap: 10px;
+  box-shadow: 0 2px 6px rgba(98, 43, 20, 0.05);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.store-search-box:focus-within {
+  border-color: var(--text-brown-primary);
+  background: #FFFDF9;
+  box-shadow: 0 0 0 3px rgba(98, 43, 20, 0.12), 0 3px 8px rgba(98, 43, 20, 0.08);
+}
+
+.search-icon {
+  font-size: 14px;
+  line-height: 1;
+  color: var(--text-brown-secondary);
+  user-select: none;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-main);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-brown-primary);
+}
+
+.search-input::placeholder {
+  color: var(--text-brown-muted);
+  font-weight: 500;
+}
+
+.btn-clear-search {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-cream-card);
+  color: var(--text-brown-secondary);
+  font-size: 10px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-clear-search:hover {
+  background: var(--accent-danger);
+  color: #FFFFFF;
+}
+
 /* Category Filter Bar */
 .category-filter-wrap {
   width: 100%;
