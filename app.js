@@ -414,6 +414,15 @@ const logoutModal = document.getElementById('logoutModal');
 const btnCancelLogout = document.getElementById('btnCancelLogout');
 const btnConfirmLogout = document.getElementById('btnConfirmLogout');
 
+// Tombol kancing tambah produk & Pop-up Modal
+const btnToggleAddProduct = document.getElementById('btnToggleAddProduct');
+const kancingIcon = document.getElementById('kancingIcon');
+const addProductModal = document.getElementById('addProductModal');
+const inputCustomProductName = document.getElementById('inputCustomProductName');
+const inputCustomProductPrice = document.getElementById('inputCustomProductPrice');
+const btnCancelAddProduct = document.getElementById('btnCancelAddProduct');
+const btnConfirmAddProduct = document.getElementById('btnConfirmAddProduct');
+
 const statusBarClock = document.getElementById('statusBarClock');
 
 /* ====================================================================
@@ -710,6 +719,130 @@ function renderStoreProducts() {
     });
 
     storeProductsList.appendChild(card);
+  });
+}
+
+/* ====================================================================
+   TAMBAH PRODUK BARU SECARA PERMANEN (TOMBOL KANCING & POP-UP)
+   ==================================================================== */
+const CUSTOM_PRODUCTS_STORAGE_KEY = 'smart_grocery_custom_products_v1';
+
+function loadCustomProducts() {
+  try {
+    const raw = localStorage.getItem(CUSTOM_PRODUCTS_STORAGE_KEY);
+    if (raw) {
+      const list = JSON.parse(raw);
+      if (Array.isArray(list)) {
+        list.forEach(item => {
+          if (item && item.supermarket && SUPERMARKET_PRODUCTS[item.supermarket]) {
+            const exists = SUPERMARKET_PRODUCTS[item.supermarket].some(p => p.id === item.id);
+            if (!exists) {
+              SUPERMARKET_PRODUCTS[item.supermarket].push(item);
+            }
+          }
+        });
+      }
+    }
+  } catch (err) {
+    console.error('Failed to load custom products:', err);
+  }
+}
+
+function saveCustomProductToStorage(product) {
+  try {
+    const raw = localStorage.getItem(CUSTOM_PRODUCTS_STORAGE_KEY);
+    const list = raw ? JSON.parse(raw) : [];
+    list.push(product);
+    localStorage.setItem(CUSTOM_PRODUCTS_STORAGE_KEY, JSON.stringify(list));
+  } catch (err) {
+    console.error('Failed to save custom product:', err);
+  }
+}
+
+function openAddProductModal() {
+  if (btnToggleAddProduct) btnToggleAddProduct.classList.add('rotated');
+  if (addProductModal) addProductModal.classList.add('show');
+  if (inputCustomProductName) inputCustomProductName.value = '';
+  if (inputCustomProductPrice) inputCustomProductPrice.value = '';
+  setTimeout(() => {
+    if (inputCustomProductName) inputCustomProductName.focus();
+  }, 220);
+}
+
+function closeAddProductModal() {
+  if (btnToggleAddProduct) btnToggleAddProduct.classList.remove('rotated');
+  if (addProductModal) addProductModal.classList.remove('show');
+}
+
+if (btnToggleAddProduct) {
+  btnToggleAddProduct.addEventListener('click', () => {
+    if (addProductModal && addProductModal.classList.contains('show')) {
+      closeAddProductModal();
+    } else {
+      openAddProductModal();
+    }
+  });
+}
+
+if (btnCancelAddProduct) {
+  btnCancelAddProduct.addEventListener('click', closeAddProductModal);
+}
+
+if (addProductModal) {
+  addProductModal.addEventListener('click', (e) => {
+    if (e.target === addProductModal) {
+      closeAddProductModal();
+    }
+  });
+}
+
+if (inputCustomProductPrice) {
+  inputCustomProductPrice.addEventListener('input', (e) => {
+    const parsed = parseRupiahInput(e.target.value);
+    e.target.value = parsed > 0 ? formatNumber(parsed) : '';
+  });
+}
+
+if (btnConfirmAddProduct) {
+  btnConfirmAddProduct.addEventListener('click', () => {
+    const name = inputCustomProductName.value.trim();
+    const price = parseRupiahInput(inputCustomProductPrice.value);
+
+    if (!name) {
+      showToast('Silakan masukkan nama produk!', 'error');
+      inputCustomProductName.focus();
+      return;
+    }
+
+    if (!price || price <= 0) {
+      showToast('Silakan masukkan harga produk yang valid!', 'error');
+      inputCustomProductPrice.focus();
+      return;
+    }
+
+    const currentStore = state.supermarket || 'Indomaret';
+    const newProduct = {
+      id: 'cust-' + Date.now(),
+      supermarket: currentStore,
+      name: name,
+      category: 'Lainnya',
+      price: price,
+      discount: 0,
+      trend: 'same',
+      lastMonthPrice: price,
+      image: '',
+      isCustom: true
+    };
+
+    if (!SUPERMARKET_PRODUCTS[currentStore]) {
+      SUPERMARKET_PRODUCTS[currentStore] = [];
+    }
+    SUPERMARKET_PRODUCTS[currentStore].push(newProduct);
+    saveCustomProductToStorage(newProduct);
+
+    renderStoreProducts();
+    closeAddProductModal();
+    showToast(`Produk "${name}" berhasil ditambahkan permanen! ✨`, 'success');
   });
 }
 
@@ -1056,6 +1189,7 @@ function loadSessionFromStorage() {
   }
 }
 
+loadCustomProducts();
 loadHistoryFromStorage();
 loadSessionFromStorage();
 
