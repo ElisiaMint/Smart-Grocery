@@ -660,17 +660,14 @@ function renderStoreProducts() {
     const hasDiscount = prod.discount > 0;
     const harga2 = hasDiscount ? Math.round(prod.price - (prod.discount * prod.price)) : prod.price;
 
-    // Emotes:
-    // a) ⬆ (merah), emot ini muncul bila harga produk meningkat dibanding harga bulan lalu
-    // b) ⬇︎ (hijau), emot ini muncul bila harga produk menurun dibanding harga bulan lalu
-    // c) = (kuning), emot ini muncul bila harga produk masih sama dengan bulan lalu
-    let emoteHtml = '';
+    // Status harga perbandingan bulan lalu (Naik, Turun, atau Masih sama)
+    let statusBadgeHtml = '';
     if (prod.trend === 'up') {
-      emoteHtml = `<span class="trend-emote up" title="Harga naik dibanding bulan lalu (Bulan lalu: Rp ${formatNumber(prod.lastMonthPrice)})">⬆</span>`;
+      statusBadgeHtml = `<span class="trend-badge up" title="Harga naik dibanding bulan lalu (Bulan lalu: ${formatRupiah(prod.lastMonthPrice)})">⬆ Naik</span>`;
     } else if (prod.trend === 'down') {
-      emoteHtml = `<span class="trend-emote down" title="Harga turun dibanding bulan lalu (Bulan lalu: Rp ${formatNumber(prod.lastMonthPrice)})">⬇︎</span>`;
+      statusBadgeHtml = `<span class="trend-badge down" title="Harga turun dibanding bulan lalu (Bulan lalu: ${formatRupiah(prod.lastMonthPrice)})">⬇︎ Turun</span>`;
     } else {
-      emoteHtml = `<span class="trend-emote same" title="Harga sama dengan bulan lalu">=</span>`;
+      statusBadgeHtml = `<span class="trend-badge same" title="Harga masih sama dengan bulan lalu">= Masih sama</span>`;
     }
 
     let pricingHtml = '';
@@ -680,12 +677,10 @@ function renderStoreProducts() {
         <span class="price-original striked">${formatRupiah(prod.price)}</span>
         <span class="discount-badge">-${discountPct}%</span>
         <span class="price-discounted">${formatRupiah(harga2)}</span>
-        ${emoteHtml}
       `;
     } else {
       pricingHtml = `
         <span class="price-original">${formatRupiah(prod.price)}</span>
-        ${emoteHtml}
       `;
     }
 
@@ -693,12 +688,11 @@ function renderStoreProducts() {
     card.className = 'product-card';
     card.innerHTML = `
       <div class="product-card-top">
-        <div class="product-img-wrap">
-          <img src="${prod.image}" alt="${prod.name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=200&auto=format&fit=crop&q=80'">
-        </div>
         <div class="product-info-wrap">
-          <span class="product-category-tag">${prod.category}</span>
-          <h2 class="product-name">${prod.name}</h2>
+          <div class="product-header-line">
+            <h2 class="product-name">${prod.name}</h2>
+            ${statusBadgeHtml}
+          </div>
           <div class="product-pricing-line">
             ${pricingHtml}
           </div>
