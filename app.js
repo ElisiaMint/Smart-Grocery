@@ -854,8 +854,15 @@ function saveCustomProductToStorage(product) {
   }
 }
 
+function triggerKancingPulseZoom() {
+  if (!btnToggleAddProduct) return;
+  btnToggleAddProduct.classList.remove('pulse-zoom');
+  void btnToggleAddProduct.offsetWidth;
+  btnToggleAddProduct.classList.add('pulse-zoom');
+}
+
 function openAddProductModal() {
-  if (btnToggleAddProduct) btnToggleAddProduct.classList.add('rotated');
+  triggerKancingPulseZoom();
   if (addProductModal) addProductModal.classList.add('show');
   if (inputCustomProductName) inputCustomProductName.value = '';
   if (inputCustomProductPrice) inputCustomProductPrice.value = '';
@@ -865,11 +872,13 @@ function openAddProductModal() {
 }
 
 function closeAddProductModal() {
-  if (btnToggleAddProduct) btnToggleAddProduct.classList.remove('rotated');
   if (addProductModal) addProductModal.classList.remove('show');
 }
 
 if (btnToggleAddProduct) {
+  btnToggleAddProduct.addEventListener('animationend', () => {
+    btnToggleAddProduct.classList.remove('pulse-zoom');
+  });
   btnToggleAddProduct.addEventListener('click', () => {
     if (addProductModal && addProductModal.classList.contains('show')) {
       closeAddProductModal();
