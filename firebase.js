@@ -4,17 +4,17 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAnalytics, isSupported as isAnalyticsSupported } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
-import { 
-  getFirestore, 
-  collection, 
-  addDoc, 
-  getDocs, 
-  query, 
-  orderBy, 
-  onSnapshot, 
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  orderBy,
+  onSnapshot,
   serverTimestamp,
-  doc, 
-  setDoc 
+  doc,
+  setDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // Your web app's Firebase configuration
@@ -103,7 +103,7 @@ export function subscribeShoppingHistory(onUpdate, onError) {
   } catch (error) {
     console.warn("⚠️ Error setting up Firestore listener:", error);
     if (onError) onError(error);
-    return () => {};
+    return () => { };
   }
 }
 

@@ -1,14 +1,97 @@
 // Data supermarket dan katalog produk Indonesia yang realistis
 export const REGION_SUPERMARKETS = {
-  "Jakarta Pusat": ["Family Mart", "Indomaret", "Alfamart", "Alfamidi"],
-  "Jakarta Selatan": ["Family Mart", "Indomaret", "Alfamart", "Alfamidi"],
-  "Bandung": ["Indomaret", "Alfamart", "Alfamidi"],
-  "Surabaya": ["Family Mart", "Indomaret", "Alfamart", "Alfamidi"],
-  "Yogyakarta": ["Indomaret", "Alfamart"],
-  "Denpasar": ["Indomaret", "Alfamart", "Alfamidi"]
+  "Jakarta Pusat": ["Lotte Mart", "Family Mart", "Indomaret", "Alfamart", "Alfamidi"],
+  "Jakarta Selatan": ["Lotte Mart", "Family Mart", "Indomaret", "Alfamart", "Alfamidi"],
+  "Bandung": ["Lotte Mart", "Indomaret", "Alfamart", "Alfamidi"],
+  "Surabaya": ["Lotte Mart", "Family Mart", "Indomaret", "Alfamart", "Alfamidi"],
+  "Yogyakarta": ["Lotte Mart", "Indomaret", "Alfamart"],
+  "Denpasar": ["Lotte Mart", "Indomaret", "Alfamart", "Alfamidi"]
 };
 
 export const SUPERMARKET_PRODUCTS = {
+  "Lotte Mart": [
+    {
+      id: "lm-1",
+      name: "Sabun Pembersih Lantai 750ml",
+      category: "Alat Kebersihan",
+      price: 20000,
+      discount: 0.25, // 25% (Harga setelah diskon: Rp 15.000)
+      trend: "down",
+      lastMonthPrice: 22000,
+      image: "https://images.unsplash.com/photo-1585670270608-b404fb880719?w=200&auto=format&fit=crop&q=80"
+    },
+    {
+      id: "lm-2",
+      name: "Wajan Teflon Anti Lengket 24cm",
+      category: "Peralatan Dapur",
+      price: 100000,
+      discount: 0.60, // 50% + 20% compound discount -> net 60% (Harga setelah diskon: Rp 40.000)
+      discountLabel: "-50% + 20%",
+      trend: "down",
+      lastMonthPrice: 120000,
+      image: "https://images.unsplash.com/photo-1584990347449-3994e43f1107?w=200&auto=format&fit=crop&q=80"
+    },
+    {
+      id: "lm-3",
+      name: "Filma Minyak Goreng Pouch 2L",
+      category: "Kebutuhan Pokok",
+      price: 20000, // Harga awal diubah menjadi 20.000
+      discount: 0.10,
+      trend: "down",
+      lastMonthPrice: 22000,
+      image: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=200&auto=format&fit=crop&q=80"
+    },
+    {
+      id: "lm-4",
+      name: "Telur Ayam Negeri Fresh 10 Butir",
+      category: "Kebutuhan Pokok",
+      price: 32000, // Harga naik dibanding bulan lalu
+      discount: 0,
+      trend: "up", // ⬆ Naik
+      lastMonthPrice: 28000,
+      image: "https://images.unsplash.com/photo-1516467508483-a7212febe31a?w=200&auto=format&fit=crop&q=80"
+    },
+    {
+      id: "lm-5",
+      name: "Beras Pandan Wangi Premium 5kg",
+      category: "Beras",
+      price: 78000, // Harga naik dibanding bulan lalu
+      discount: 0,
+      trend: "up", // ⬆ Naik
+      lastMonthPrice: 72000,
+      image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=200&auto=format&fit=crop&q=80"
+    },
+    {
+      id: "lm-6",
+      name: "Binggrae Banana Milk 200ml",
+      category: "Minuman",
+      price: 14500,
+      discount: 0.15,
+      trend: "same",
+      lastMonthPrice: 14500,
+      image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=200&auto=format&fit=crop&q=80"
+    },
+    {
+      id: "lm-7",
+      name: "Samyang Buldak Hot Chicken Ramen 140g",
+      category: "Makanan Siap Saji",
+      price: 18500,
+      discount: 0,
+      trend: "up",
+      lastMonthPrice: 17000,
+      image: "https://images.unsplash.com/photo-1612927601601-6638404737ce?w=200&auto=format&fit=crop&q=80"
+    },
+    {
+      id: "lm-8",
+      name: "Lotte Mart US Beef Shortplate 300g",
+      category: "Daging Segar",
+      price: 65000,
+      discount: 0.12,
+      trend: "down",
+      lastMonthPrice: 72000,
+      image: "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=200&auto=format&fit=crop&q=80"
+    }
+  ],
   "Family Mart": [
     {
       id: "fm-1",
@@ -89,6 +172,47 @@ export const SUPERMARKET_PRODUCTS = {
       trend: "up",
       lastMonthPrice: 15000,
       image: "https://images.unsplash.com/photo-1576107232684-1279f3908594?w=200&auto=format&fit=crop&q=80"
+    },
+    {
+      id: "fm-9",
+      name: "Sabun Pembersih Lantai 750ml",
+      category: "Alat Kebersihan",
+      price: 20000,
+      discount: 0.25, // 25%
+      trend: "down",
+      lastMonthPrice: 22000,
+      image: "https://images.unsplash.com/photo-1585670270608-b404fb880719?w=200&auto=format&fit=crop&q=80"
+    },
+    {
+      id: "fm-10",
+      name: "Wajan Teflon Anti Lengket 24cm",
+      category: "Peralatan Dapur",
+      price: 100000,
+      discount: 0.60, // 50% + 20%
+      discountLabel: "-50% + 20%",
+      trend: "down",
+      lastMonthPrice: 120000,
+      image: "https://images.unsplash.com/photo-1584990347449-3994e43f1107?w=200&auto=format&fit=crop&q=80"
+    },
+    {
+      id: "fm-11",
+      name: "Telur Ayam Omega Fresh 10 Butir",
+      category: "Kebutuhan Pokok",
+      price: 33000, // Harga naik dibanding bulan lalu
+      discount: 0,
+      trend: "up",
+      lastMonthPrice: 29000,
+      image: "https://images.unsplash.com/photo-1516467508483-a7212febe31a?w=200&auto=format&fit=crop&q=80"
+    },
+    {
+      id: "fm-12",
+      name: "Beras Japonica Premium 2kg",
+      category: "Beras",
+      price: 46000, // Harga naik dibanding bulan lalu
+      discount: 0,
+      trend: "up",
+      lastMonthPrice: 41000,
+      image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=200&auto=format&fit=crop&q=80"
     }
   ],
   "Indomaret": [
@@ -126,10 +250,10 @@ export const SUPERMARKET_PRODUCTS = {
       id: "in-4",
       name: "Sania Minyak Goreng Pouch 2L",
       category: "Kebutuhan Pokok",
-      price: 38000,
+      price: 20000, // Harga awal diubah menjadi 20.000
       discount: 0.10,
       trend: "down",
-      lastMonthPrice: 41000,
+      lastMonthPrice: 22000,
       image: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=200&auto=format&fit=crop&q=80"
     },
     {
@@ -171,6 +295,47 @@ export const SUPERMARKET_PRODUCTS = {
       trend: "down",
       lastMonthPrice: 16500,
       image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=200&auto=format&fit=crop&q=80"
+    },
+    {
+      id: "in-9",
+      name: "Sabun Pembersih Lantai 750ml",
+      category: "Alat Kebersihan",
+      price: 20000,
+      discount: 0.25, // 25% (Harga setelah diskon: Rp 15.000)
+      trend: "down",
+      lastMonthPrice: 22000,
+      image: "https://images.unsplash.com/photo-1585670270608-b404fb880719?w=200&auto=format&fit=crop&q=80"
+    },
+    {
+      id: "in-10",
+      name: "Wajan Teflon Anti Lengket 24cm",
+      category: "Peralatan Dapur",
+      price: 100000,
+      discount: 0.60, // 50% + 20%
+      discountLabel: "-50% + 20%",
+      trend: "down",
+      lastMonthPrice: 120000,
+      image: "https://images.unsplash.com/photo-1584990347449-3994e43f1107?w=200&auto=format&fit=crop&q=80"
+    },
+    {
+      id: "in-11",
+      name: "Telur Ayam Negeri Pack 10 Butir",
+      category: "Kebutuhan Pokok",
+      price: 31000, // Harga naik dibanding bulan lalu
+      discount: 0,
+      trend: "up",
+      lastMonthPrice: 27500,
+      image: "https://images.unsplash.com/photo-1516467508483-a7212febe31a?w=200&auto=format&fit=crop&q=80"
+    },
+    {
+      id: "in-12",
+      name: "Beras Premium Sania 5kg",
+      category: "Beras",
+      price: 74500, // Harga naik dibanding bulan lalu
+      discount: 0,
+      trend: "up",
+      lastMonthPrice: 70000,
+      image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=200&auto=format&fit=crop&q=80"
     }
   ],
   "Alfamart": [
@@ -178,19 +343,19 @@ export const SUPERMARKET_PRODUCTS = {
       id: "al-1",
       name: "Bimoli Minyak Goreng Pouch 2L",
       category: "Kebutuhan Pokok",
-      price: 39500,
+      price: 20000, // Harga awal diubah menjadi 20.000
       discount: 0.15,
       trend: "down",
-      lastMonthPrice: 42000,
+      lastMonthPrice: 22000,
       image: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=200&auto=format&fit=crop&q=80"
     },
     {
       id: "al-2",
       name: "Telur Ayam Omega 10 Butir",
       category: "Kebutuhan Pokok",
-      price: 32000,
+      price: 32000, // Harga naik dibanding bulan lalu
       discount: 0,
-      trend: "up",
+      trend: "up", // ⬆ Naik
       lastMonthPrice: 29000,
       image: "https://images.unsplash.com/photo-1516467508483-a7212febe31a?w=200&auto=format&fit=crop&q=80"
     },
@@ -253,6 +418,37 @@ export const SUPERMARKET_PRODUCTS = {
       trend: "same",
       lastMonthPrice: 3500,
       image: "https://images.unsplash.com/photo-1548839140-29a749e1bc4e?w=200&auto=format&fit=crop&q=80"
+    },
+    {
+      id: "al-9",
+      name: "Sabun Pembersih Lantai 750ml",
+      category: "Alat Kebersihan",
+      price: 20000,
+      discount: 0.25, // 25% (Harga setelah diskon: Rp 15.000)
+      trend: "down",
+      lastMonthPrice: 22000,
+      image: "https://images.unsplash.com/photo-1585670270608-b404fb880719?w=200&auto=format&fit=crop&q=80"
+    },
+    {
+      id: "al-10",
+      name: "Wajan Teflon Anti Lengket 24cm",
+      category: "Peralatan Dapur",
+      price: 100000,
+      discount: 0.60, // 50% + 20%
+      discountLabel: "-50% + 20%",
+      trend: "down",
+      lastMonthPrice: 120000,
+      image: "https://images.unsplash.com/photo-1584990347449-3994e43f1107?w=200&auto=format&fit=crop&q=80"
+    },
+    {
+      id: "al-11",
+      name: "Beras Setra Ramos Alfamart 5kg",
+      category: "Beras",
+      price: 74000, // Harga naik dibanding bulan lalu
+      discount: 0,
+      trend: "up",
+      lastMonthPrice: 69500,
+      image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=200&auto=format&fit=crop&q=80"
     }
   ],
   "Alfamidi": [
@@ -310,9 +506,9 @@ export const SUPERMARKET_PRODUCTS = {
       id: "md-6",
       name: "Beras Premium Midi Topi Koki 5kg",
       category: "Beras",
-      price: 74000,
+      price: 74000, // Harga naik dibanding bulan lalu
       discount: 0,
-      trend: "up",
+      trend: "up", // ⬆ Naik
       lastMonthPrice: 71000,
       image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=200&auto=format&fit=crop&q=80"
     },
@@ -335,6 +531,47 @@ export const SUPERMARKET_PRODUCTS = {
       trend: "down",
       lastMonthPrice: 28000,
       image: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=200&auto=format&fit=crop&q=80"
+    },
+    {
+      id: "md-9",
+      name: "Sabun Pembersih Lantai 750ml",
+      category: "Alat Kebersihan",
+      price: 20000,
+      discount: 0.25, // 25% (Harga setelah diskon: Rp 15.000)
+      trend: "down",
+      lastMonthPrice: 22000,
+      image: "https://images.unsplash.com/photo-1585670270608-b404fb880719?w=200&auto=format&fit=crop&q=80"
+    },
+    {
+      id: "md-10",
+      name: "Wajan Teflon Anti Lengket 24cm",
+      category: "Peralatan Dapur",
+      price: 100000,
+      discount: 0.60, // 50% + 20%
+      discountLabel: "-50% + 20%",
+      trend: "down",
+      lastMonthPrice: 120000,
+      image: "https://images.unsplash.com/photo-1584990347449-3994e43f1107?w=200&auto=format&fit=crop&q=80"
+    },
+    {
+      id: "md-11",
+      name: "Tropical Minyak Goreng Botol 2L",
+      category: "Kebutuhan Pokok",
+      price: 20000, // Harga awal diubah menjadi 20.000
+      discount: 0.10,
+      trend: "down",
+      lastMonthPrice: 22000,
+      image: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=200&auto=format&fit=crop&q=80"
+    },
+    {
+      id: "md-12",
+      name: "Telur Ayam Kampung Fresh 10 Butir",
+      category: "Kebutuhan Pokok",
+      price: 35000, // Harga naik dibanding bulan lalu
+      discount: 0,
+      trend: "up",
+      lastMonthPrice: 31000,
+      image: "https://images.unsplash.com/photo-1516467508483-a7212febe31a?w=200&auto=format&fit=crop&q=80"
     }
   ]
 };
