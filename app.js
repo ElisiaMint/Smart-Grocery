@@ -657,8 +657,20 @@ const kancingIcon = document.getElementById('kancingIcon');
 const addProductModal = document.getElementById('addProductModal');
 const inputCustomProductName = document.getElementById('inputCustomProductName');
 const inputCustomProductPrice = document.getElementById('inputCustomProductPrice');
+const inputCustomProductDiscount = document.getElementById('inputCustomProductDiscount');
+const addPriceFinalPreview = document.getElementById('addPriceFinalPreview');
 const btnCancelAddProduct = document.getElementById('btnCancelAddProduct');
 const btnConfirmAddProduct = document.getElementById('btnConfirmAddProduct');
+
+// Modal Pop-up Edit Informasi Produk
+const editProductModal = document.getElementById('editProductModal');
+const editProductId = document.getElementById('editProductId');
+const inputEditProductName = document.getElementById('inputEditProductName');
+const inputEditProductPrice = document.getElementById('inputEditProductPrice');
+const inputEditProductDiscount = document.getElementById('inputEditProductDiscount');
+const editPriceFinalPreview = document.getElementById('editPriceFinalPreview');
+const btnCancelEditProduct = document.getElementById('btnCancelEditProduct');
+const btnConfirmEditProduct = document.getElementById('btnConfirmEditProduct');
 
 const statusBarClock = document.getElementById('statusBarClock');
 
@@ -1002,7 +1014,13 @@ function renderStoreProducts() {
         <div class="product-info-wrap">
           <div class="product-header-line">
             <h2 class="product-name">${prod.name}</h2>
-            ${statusBadgeHtml}
+            <div class="product-header-actions">
+              ${statusBadgeHtml}
+              <button type="button" class="btn-edit-product" data-id="${prod.id}" title="Edit harga & diskon produk">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                <span>Edit</span>
+              </button>
+            </div>
           </div>
           <div class="product-pricing-line">
             ${pricingHtml}
@@ -1019,6 +1037,14 @@ function renderStoreProducts() {
     addBtn.addEventListener('click', () => {
       addProductToCart(prod, harga2);
     });
+
+    const editBtn = card.querySelector('.btn-edit-product');
+    if (editBtn) {
+      editBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openEditProductModal(prod);
+      });
+    }
 
     storeProductsList.appendChild(card);
   });
@@ -1100,11 +1126,35 @@ function triggerKancingPulseZoom() {
   btnToggleAddProduct.classList.add('pulse-zoom');
 }
 
+function updateAddProductPricePreview() {
+  const price = parseRupiahInput(inputCustomProductPrice ? inputCustomProductPrice.value : '') || 0;
+  const rawDiscount = inputCustomProductDiscount ? parseFloat(inputCustomProductDiscount.value) : 0;
+  const discountVal = isNaN(rawDiscount) ? 0 : rawDiscount;
+  const clampedDiscount = Math.max(0, Math.min(100, discountVal));
+  const discountRatio = clampedDiscount / 100;
+  const finalPrice = Math.round(price - (price * discountRatio));
+
+  if (addPriceFinalPreview) {
+    if (price > 0) {
+      if (clampedDiscount > 0) {
+        const hemat = price - finalPrice;
+        addPriceFinalPreview.innerHTML = `${formatRupiah(finalPrice)} <span style="font-size:11px; font-weight:600; color:#15803D; margin-left:4px;">(Hemat ${formatRupiah(hemat)})</span>`;
+      } else {
+        addPriceFinalPreview.textContent = formatRupiah(finalPrice);
+      }
+    } else {
+      addPriceFinalPreview.textContent = 'Rp 0';
+    }
+  }
+}
+
 function openAddProductModal() {
   triggerKancingPulseZoom();
   if (addProductModal) addProductModal.classList.add('show');
   if (inputCustomProductName) inputCustomProductName.value = '';
   if (inputCustomProductPrice) inputCustomProductPrice.value = '';
+  if (inputCustomProductDiscount) inputCustomProductDiscount.value = '';
+  updateAddProductPricePreview();
   setTimeout(() => {
     if (inputCustomProductName) inputCustomProductName.focus();
   }, 220);
@@ -1143,6 +1193,13 @@ if (inputCustomProductPrice) {
   inputCustomProductPrice.addEventListener('input', (e) => {
     const parsed = parseRupiahInput(e.target.value);
     e.target.value = parsed > 0 ? formatNumber(parsed) : '';
+    updateAddProductPricePreview();
+  });
+}
+
+if (inputCustomProductDiscount) {
+  inputCustomProductDiscount.addEventListener('input', () => {
+    updateAddProductPricePreview();
   });
 }
 
@@ -1150,6 +1207,10 @@ if (btnConfirmAddProduct) {
   btnConfirmAddProduct.addEventListener('click', () => {
     const name = inputCustomProductName.value.trim();
     const price = parseRupiahInput(inputCustomProductPrice.value);
+    const rawDiscount = inputCustomProductDiscount ? parseFloat(inputCustomProductDiscount.value) : 0;
+    const discountVal = isNaN(rawDiscount) ? 0 : rawDiscount;
+    const clampedDiscount = Math.max(0, Math.min(100, discountVal));
+    const discountRatio = clampedDiscount / 100;
 
     if (!name) {
       showToast('Silakan masukkan nama produk!', 'error');
@@ -1170,7 +1231,8 @@ if (btnConfirmAddProduct) {
       name: name,
       category: 'Lainnya',
       price: price,
-      discount: 0,
+      discount: discountRatio,
+      discountLabel: clampedDiscount > 0 ? `-${Math.round(clampedDiscount)}%` : '',
       trend: 'same',
       lastMonthPrice: price,
       image: '',
@@ -1186,6 +1248,203 @@ if (btnConfirmAddProduct) {
     renderStoreProducts();
     closeAddProductModal();
     showToast(`Produk "${name}" berhasil ditambahkan permanen! ✨`, 'success');
+  });
+}
+
+/* ====================================================================
+   EDIT INFORMASI PRODUK (HARGA AWAL & DISKON)
+   ==================================================================== */
+const EDITED_PRODUCTS_STORAGE_KEY = 'smart_grocery_edited_products_v1';
+let currentEditingProduct = null;
+
+function loadProductEdits() {
+  try {
+    const raw = localStorage.getItem(EDITED_PRODUCTS_STORAGE_KEY);
+    if (raw) {
+      const edits = JSON.parse(raw);
+      if (typeof edits === 'object' && edits !== null) {
+        Object.keys(SUPERMARKET_PRODUCTS).forEach(store => {
+          SUPERMARKET_PRODUCTS[store].forEach(prod => {
+            if (edits[prod.id]) {
+              Object.assign(prod, edits[prod.id]);
+            }
+          });
+        });
+      }
+    }
+  } catch (err) {
+    console.error('Failed to load product edits:', err);
+  }
+}
+
+function saveProductEditToStorage(productId, updatedFields) {
+  try {
+    const raw = localStorage.getItem(EDITED_PRODUCTS_STORAGE_KEY);
+    const edits = raw ? JSON.parse(raw) : {};
+    edits[productId] = {
+      ...(edits[productId] || {}),
+      ...updatedFields
+    };
+    localStorage.setItem(EDITED_PRODUCTS_STORAGE_KEY, JSON.stringify(edits));
+
+    // Jika produk ini adalah custom product, update juga di storage produk kustom
+    const customRaw = localStorage.getItem(CUSTOM_PRODUCTS_STORAGE_KEY);
+    if (customRaw) {
+      const customList = JSON.parse(customRaw);
+      const idx = customList.findIndex(p => p.id === productId);
+      if (idx > -1) {
+        Object.assign(customList[idx], updatedFields);
+        localStorage.setItem(CUSTOM_PRODUCTS_STORAGE_KEY, JSON.stringify(customList));
+      }
+    }
+  } catch (err) {
+    console.error('Failed to save product edit:', err);
+  }
+}
+
+function updateEditProductPricePreview() {
+  const price = parseRupiahInput(inputEditProductPrice ? inputEditProductPrice.value : '') || 0;
+  const rawDiscount = inputEditProductDiscount ? parseFloat(inputEditProductDiscount.value) : 0;
+  const discountVal = isNaN(rawDiscount) ? 0 : rawDiscount;
+  const clampedDiscount = Math.max(0, Math.min(100, discountVal));
+  const discountRatio = clampedDiscount / 100;
+  const finalPrice = Math.round(price - (price * discountRatio));
+
+  if (editPriceFinalPreview) {
+    if (price > 0) {
+      if (clampedDiscount > 0) {
+        const hemat = price - finalPrice;
+        editPriceFinalPreview.innerHTML = `${formatRupiah(finalPrice)} <span style="font-size:11px; font-weight:600; color:#15803D; margin-left:4px;">(Hemat ${formatRupiah(hemat)})</span>`;
+      } else {
+        editPriceFinalPreview.textContent = formatRupiah(finalPrice);
+      }
+    } else {
+      editPriceFinalPreview.textContent = 'Rp 0';
+    }
+  }
+}
+
+function openEditProductModal(product) {
+  currentEditingProduct = product;
+  if (!product) return;
+
+  if (editProductId) editProductId.value = product.id;
+  if (inputEditProductName) inputEditProductName.value = product.name || '';
+  if (inputEditProductPrice) inputEditProductPrice.value = product.price > 0 ? formatNumber(product.price) : '';
+  const currentDiscountPct = product.discount ? Math.round(product.discount * 100) : 0;
+  if (inputEditProductDiscount) inputEditProductDiscount.value = currentDiscountPct > 0 ? currentDiscountPct : '';
+
+  updateEditProductPricePreview();
+
+  if (editProductModal) editProductModal.classList.add('show');
+  setTimeout(() => {
+    if (inputEditProductPrice) {
+      inputEditProductPrice.focus();
+      inputEditProductPrice.select();
+    }
+  }, 220);
+}
+
+function closeEditProductModal() {
+  if (editProductModal) editProductModal.classList.remove('show');
+  currentEditingProduct = null;
+}
+
+if (inputEditProductPrice) {
+  inputEditProductPrice.addEventListener('input', (e) => {
+    const parsed = parseRupiahInput(e.target.value);
+    e.target.value = parsed > 0 ? formatNumber(parsed) : '';
+    updateEditProductPricePreview();
+  });
+}
+
+if (inputEditProductDiscount) {
+  inputEditProductDiscount.addEventListener('input', () => {
+    updateEditProductPricePreview();
+  });
+}
+
+if (btnCancelEditProduct) {
+  btnCancelEditProduct.addEventListener('click', closeEditProductModal);
+}
+
+if (editProductModal) {
+  editProductModal.addEventListener('click', (e) => {
+    if (e.target === editProductModal) {
+      closeEditProductModal();
+    }
+  });
+}
+
+if (btnConfirmEditProduct) {
+  btnConfirmEditProduct.addEventListener('click', () => {
+    if (!currentEditingProduct) return;
+
+    const newName = inputEditProductName ? inputEditProductName.value.trim() : currentEditingProduct.name;
+    const newPrice = parseRupiahInput(inputEditProductPrice.value);
+    const rawDiscount = inputEditProductDiscount ? parseFloat(inputEditProductDiscount.value) : 0;
+    const discountVal = isNaN(rawDiscount) ? 0 : rawDiscount;
+    const clampedDiscount = Math.max(0, Math.min(100, discountVal));
+    const newDiscount = clampedDiscount / 100;
+
+    if (!newName) {
+      showToast('Nama produk tidak boleh kosong!', 'error');
+      if (inputEditProductName) inputEditProductName.focus();
+      return;
+    }
+
+    if (!newPrice || newPrice <= 0) {
+      showToast('Silakan masukkan harga awal yang valid!', 'error');
+      inputEditProductPrice.focus();
+      return;
+    }
+
+    // Tentukan status trend perbandingan harga bulan lalu
+    const referencePrice = (currentEditingProduct.lastMonthPrice !== undefined && currentEditingProduct.lastMonthPrice > 0)
+      ? currentEditingProduct.lastMonthPrice
+      : currentEditingProduct.price;
+
+    let newTrend = 'same';
+    if (newPrice > referencePrice) {
+      newTrend = 'up';
+    } else if (newPrice < referencePrice) {
+      newTrend = 'down';
+    } else {
+      newTrend = 'same';
+    }
+
+    // Perbarui objek produk
+    currentEditingProduct.name = newName;
+    currentEditingProduct.price = newPrice;
+    currentEditingProduct.discount = newDiscount;
+    currentEditingProduct.discountLabel = clampedDiscount > 0 ? `-${Math.round(clampedDiscount)}%` : '';
+    currentEditingProduct.trend = newTrend;
+    currentEditingProduct.lastMonthPrice = referencePrice;
+
+    // Simpan perubahan ke localStorage
+    saveProductEditToStorage(currentEditingProduct.id, {
+      name: currentEditingProduct.name,
+      price: currentEditingProduct.price,
+      discount: currentEditingProduct.discount,
+      discountLabel: currentEditingProduct.discountLabel,
+      trend: currentEditingProduct.trend,
+      lastMonthPrice: currentEditingProduct.lastMonthPrice
+    });
+
+    // Sinkronkan juga pada item di keranjang (cart) jika barang ini sedang ada dalam list
+    const cartItem = state.cart.find(i => i.id === currentEditingProduct.id);
+    if (cartItem) {
+      cartItem.name = currentEditingProduct.name;
+      cartItem.originalPrice = currentEditingProduct.price;
+      cartItem.discount = currentEditingProduct.discount;
+      cartItem.effectivePrice = newDiscount > 0 ? Math.round(newPrice - (newPrice * newDiscount)) : newPrice;
+      updateBudgetAndColors();
+      renderCart();
+    }
+
+    renderStoreProducts();
+    closeEditProductModal();
+    showToast(`Produk "${newName}" berhasil diperbarui! ✨`, 'success');
   });
 }
 
@@ -1533,6 +1792,7 @@ function loadSessionFromStorage() {
 }
 
 loadCustomProducts();
+loadProductEdits();
 loadHistoryFromStorage();
 loadSessionFromStorage();
 

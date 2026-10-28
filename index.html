@@ -341,7 +341,7 @@
 
           <div class="form-group">
             <label for="inputCustomProductPrice" class="form-label">
-              <span>Harga Produk</span> <span class="req">*</span>
+              <span>Harga Awal</span> <span class="req">*</span>
             </label>
             <div class="input-wrap">
               <span class="input-prefix">Rp</span>
@@ -356,9 +356,112 @@
             </div>
           </div>
 
+          <div class="form-group">
+            <label for="inputCustomProductDiscount" class="form-label">
+              <span>Diskon (Opsional)</span>
+            </label>
+            <div class="input-wrap">
+              <input 
+                type="number" 
+                id="inputCustomProductDiscount" 
+                class="form-input has-suffix" 
+                placeholder="0" 
+                min="0"
+                max="100"
+                step="1"
+                inputmode="numeric" 
+                autocomplete="off"
+              >
+              <span class="input-suffix">%</span>
+            </div>
+          </div>
+
+          <div class="price-calc-preview" id="addPricePreviewBox">
+            <div class="calc-label">🏷️ Harga Akhir:</div>
+            <div class="calc-val" id="addPriceFinalPreview">Rp 0</div>
+          </div>
+
           <div class="modal-actions-right">
             <button type="button" class="modal-btn secondary" id="btnCancelAddProduct">Batal</button>
             <button type="button" class="btn-confirm-add" id="btnConfirmAddProduct">Confirm</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal Pop-up Edit Informasi Produk -->
+    <div id="editProductModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="editProductModalTitle">
+      <div class="modal-card">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div class="modal-icon-circle" style="width:42px; height:42px; margin:0; background:#E0F2FE; color:#0369A1; font-size:20px;">✏️</div>
+          <div>
+            <h3 class="modal-title" id="editProductModalTitle" style="text-align:left; font-size:16px;">Edit Informasi Produk</h3>
+            <p class="modal-desc" style="text-align:left; font-size:11.5px; margin-top:2px;">Ubah harga awal dan diskon produk.</p>
+          </div>
+        </div>
+
+        <form id="formEditProduct" style="display:flex; flex-direction:column; gap:12px; margin-top:6px;" onsubmit="return false;">
+          <input type="hidden" id="editProductId" value="">
+
+          <div class="form-group">
+            <label for="inputEditProductName" class="form-label">
+              <span>Nama Produk</span>
+            </label>
+            <input 
+              type="text" 
+              id="inputEditProductName" 
+              class="form-input" 
+              placeholder="Nama produk" 
+              maxlength="50"
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="inputEditProductPrice" class="form-label">
+              <span>Harga Awal</span> <span class="req">*</span>
+            </label>
+            <div class="input-wrap">
+              <span class="input-prefix">Rp</span>
+              <input 
+                type="text" 
+                id="inputEditProductPrice" 
+                class="form-input has-prefix" 
+                placeholder="0" 
+                inputmode="numeric" 
+                autocomplete="off"
+              >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="inputEditProductDiscount" class="form-label">
+              <span>Diskon</span>
+            </label>
+            <div class="input-wrap">
+              <input 
+                type="number" 
+                id="inputEditProductDiscount" 
+                class="form-input has-suffix" 
+                placeholder="0" 
+                min="0"
+                max="100"
+                step="1"
+                inputmode="numeric" 
+                autocomplete="off"
+              >
+              <span class="input-suffix">%</span>
+            </div>
+          </div>
+
+          <div class="price-calc-preview" id="editPricePreviewBox">
+            <div class="calc-label">🏷️ Harga Akhir:</div>
+            <div class="calc-val" id="editPriceFinalPreview">Rp 0</div>
+          </div>
+
+          <div class="modal-actions-right">
+            <button type="button" class="modal-btn secondary" id="btnCancelEditProduct">Batal</button>
+            <button type="button" class="btn-confirm-add" id="btnConfirmEditProduct">Simpan Perubahan</button>
           </div>
         </form>
       </div>
@@ -411,6 +514,6 @@
   <!-- Load Firebase Module First -->
   <script type="module" src="firebase.js"></script>
   <!-- Load Main Application Logic -->
-  <script src="app.js?v=2.7"></script>
+  <script src="app.js?v=2.8"></script>
 </body>
 </html>

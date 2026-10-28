@@ -314,6 +314,47 @@ input.form-input.has-prefix {
   padding-left: 42px;
 }
 
+.input-suffix {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: 700;
+  color: var(--text-brown-secondary);
+  font-size: 13px;
+  pointer-events: none;
+}
+
+input.form-input.has-suffix {
+  padding-right: 36px;
+}
+
+.price-calc-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #FFF7ED;
+  border: 1.5px dashed #FDBA74;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.price-calc-preview .calc-label {
+  color: #9A3412;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.price-calc-preview .calc-val {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #C2410C;
+}
+
 select.form-input:focus, input.form-input:focus {
   border-color: var(--text-brown-primary);
   background-color: #FFFFFF;
@@ -878,8 +919,51 @@ select.form-input:focus, input.form-input:focus {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
+}
+
+.product-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.btn-edit-product {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3.5px;
+  padding: 3px 8px;
+  background-color: #FDF8F3;
+  border: 1px solid #E6D7CB;
+  color: #78350F;
+  border-radius: var(--radius-full);
+  font-family: var(--font-main);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.btn-edit-product:hover {
+  background-color: #F5EAE1;
+  border-color: #D4BBA8;
+  color: #59210B;
+  transform: translateY(-1px);
+}
+
+.btn-edit-product:active {
+  transform: translateY(0);
+}
+
+.btn-edit-product svg {
+  width: 11px;
+  height: 11px;
+  stroke: #9A3412;
+  flex-shrink: 0;
 }
 
 .trend-badge {
