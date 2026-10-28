@@ -658,6 +658,7 @@ const addProductModal = document.getElementById('addProductModal');
 const inputCustomProductName = document.getElementById('inputCustomProductName');
 const inputCustomProductPrice = document.getElementById('inputCustomProductPrice');
 const inputCustomProductDiscount = document.getElementById('inputCustomProductDiscount');
+const inputCustomProductDiscount2 = document.getElementById('inputCustomProductDiscount2');
 const addPriceFinalPreview = document.getElementById('addPriceFinalPreview');
 const btnCancelAddProduct = document.getElementById('btnCancelAddProduct');
 const btnConfirmAddProduct = document.getElementById('btnConfirmAddProduct');
@@ -668,6 +669,7 @@ const editProductId = document.getElementById('editProductId');
 const inputEditProductName = document.getElementById('inputEditProductName');
 const inputEditProductPrice = document.getElementById('inputEditProductPrice');
 const inputEditProductDiscount = document.getElementById('inputEditProductDiscount');
+const inputEditProductDiscount2 = document.getElementById('inputEditProductDiscount2');
 const editPriceFinalPreview = document.getElementById('editPriceFinalPreview');
 const btnCancelEditProduct = document.getElementById('btnCancelEditProduct');
 const btnConfirmEditProduct = document.getElementById('btnConfirmEditProduct');
@@ -979,8 +981,33 @@ function renderStoreProducts() {
   }
 
   filtered.forEach(prod => {
-    const hasDiscount = prod.discount > 0;
-    const harga2 = hasDiscount ? Math.round(prod.price - (prod.discount * prod.price)) : prod.price;
+    // Hitung diskon bertingkat: harga2 = harga - (harga * diskon1), harga_akhir = harga2 - (harga2 * diskon2)
+    let hargaFinal = prod.price;
+    let discountBadgeText = '';
+    let hasDiscount = false;
+
+    const d1 = prod.discount1 !== undefined ? prod.discount1 : (prod.discount || 0);
+    const d2 = prod.discount2 || 0;
+
+    if (d1 > 0 || d2 > 0) {
+      hasDiscount = true;
+      const step1 = prod.price - (prod.price * d1);
+      hargaFinal = Math.round(step1 - (step1 * d2));
+
+      if (prod.discountLabel) {
+        discountBadgeText = prod.discountLabel;
+      } else if (d1 > 0 && d2 > 0) {
+        discountBadgeText = `-${Math.round(d1 * 100)}% + ${Math.round(d2 * 100)}%`;
+      } else if (d1 > 0) {
+        discountBadgeText = `-${Math.round(d1 * 100)}%`;
+      } else {
+        discountBadgeText = `-${Math.round(d2 * 100)}%`;
+      }
+    } else if (prod.discount > 0) {
+      hasDiscount = true;
+      hargaFinal = Math.round(prod.price - (prod.discount * prod.price));
+      discountBadgeText = prod.discountLabel || `-${Math.round(prod.discount * 100)}%`;
+    }
 
     // Status harga perbandingan bulan lalu (Naik, Turun, atau Masih sama)
     let statusBadgeHtml = '';
@@ -994,12 +1021,10 @@ function renderStoreProducts() {
 
     let pricingHtml = '';
     if (hasDiscount) {
-      const discountPct = Math.round(prod.discount * 100);
-      const discountBadgeText = prod.discountLabel || `-${discountPct}%`;
       pricingHtml = `
         <span class="price-original striked">${formatRupiah(prod.price)}</span>
         <span class="discount-badge">${discountBadgeText}</span>
-        <span class="price-discounted">${formatRupiah(harga2)}</span>
+        <span class="price-discounted">${formatRupiah(hargaFinal)}</span>
       `;
     } else {
       pricingHtml = `
@@ -1035,7 +1060,7 @@ function renderStoreProducts() {
 
     const addBtn = card.querySelector('.btn-add-list');
     addBtn.addEventListener('click', () => {
-      addProductToCart(prod, harga2);
+      addProductToCart(prod, hargaFinal);
     });
 
     const editBtn = card.querySelector('.btn-edit-product');
@@ -1126,21 +1151,65 @@ function triggerKancingPulseZoom() {
   btnToggleAddProduct.classList.add('pulse-zoom');
 }
 
+// Fungsi kalkulasi diskon bertingkat:
+// harga2 = harga - (harga * diskon1)
+// harga_akhir = harga2 - (harga2 * diskon2)
+function calculateCompoundDiscountPrice(originalPrice, discPct1, discPct2) {
+  const p = Math.max(0, originalPrice || 0);
+  const d1 = Math.max(0, Math.min(100, discPct1 || 0)) / 100;
+  const d2 = Math.max(0, Math.min(100, discPct2 || 0)) / 100;
+
+  const harga2 = p - (p * d1);
+  const hargaAkhir = Math.round(harga2 - (harga2 * d2));
+
+  let discountLabel = '';
+  const d1Round = Math.round(d1 * 100);
+  const d2Round = Math.round(d2 * 100);
+
+  if (d1Round > 0 && d2Round > 0) {
+    discountLabel = `-${d1Round}% + ${d2Round}%`;
+  } else if (d1Round > 0) {
+    discountLabel = `-${d1Round}%`;
+  } else if (d2Round > 0) {
+    discountLabel = `-${d2Round}%`;
+  }
+
+  const netDiscountRatio = p > 0 ? (p - hargaAkhir) / p : 0;
+
+  return {
+    hargaAwal: p,
+    d1Pct: d1Round,
+    d2Pct: d2Round,
+    d1Ratio: d1,
+    d2Ratio: d2,
+    harga2: Math.round(harga2),
+    hargaAkhir: hargaAkhir,
+    discountLabel: discountLabel,
+    netDiscountRatio: netDiscountRatio,
+    hemat: p - hargaAkhir
+  };
+}
+
 function updateAddProductPricePreview() {
   const price = parseRupiahInput(inputCustomProductPrice ? inputCustomProductPrice.value : '') || 0;
-  const rawDiscount = inputCustomProductDiscount ? parseFloat(inputCustomProductDiscount.value) : 0;
-  const discountVal = isNaN(rawDiscount) ? 0 : rawDiscount;
-  const clampedDiscount = Math.max(0, Math.min(100, discountVal));
-  const discountRatio = clampedDiscount / 100;
-  const finalPrice = Math.round(price - (price * discountRatio));
+  const d1Raw = inputCustomProductDiscount ? parseFloat(inputCustomProductDiscount.value) : 0;
+  const d2Raw = inputCustomProductDiscount2 ? parseFloat(inputCustomProductDiscount2.value) : 0;
+  const calc = calculateCompoundDiscountPrice(price, isNaN(d1Raw) ? 0 : d1Raw, isNaN(d2Raw) ? 0 : d2Raw);
 
   if (addPriceFinalPreview) {
-    if (price > 0) {
-      if (clampedDiscount > 0) {
-        const hemat = price - finalPrice;
-        addPriceFinalPreview.innerHTML = `${formatRupiah(finalPrice)} <span style="font-size:11px; font-weight:600; color:#15803D; margin-left:4px;">(Hemat ${formatRupiah(hemat)})</span>`;
+    if (calc.hargaAwal > 0) {
+      if (calc.d1Pct > 0 || calc.d2Pct > 0) {
+        let tag = '';
+        if (calc.d1Pct > 0 && calc.d2Pct > 0) {
+          tag = `Diskon ${calc.d1Pct}% + ${calc.d2Pct}%`;
+        } else if (calc.d1Pct > 0) {
+          tag = `Diskon ${calc.d1Pct}%`;
+        } else {
+          tag = `Diskon ${calc.d2Pct}%`;
+        }
+        addPriceFinalPreview.innerHTML = `${formatRupiah(calc.hargaAkhir)} <span style="font-size:11px; font-weight:600; color:#15803D; margin-left:4px;">(Hemat ${formatRupiah(calc.hemat)} • ${tag})</span>`;
       } else {
-        addPriceFinalPreview.textContent = formatRupiah(finalPrice);
+        addPriceFinalPreview.textContent = formatRupiah(calc.hargaAkhir);
       }
     } else {
       addPriceFinalPreview.textContent = 'Rp 0';
@@ -1154,6 +1223,7 @@ function openAddProductModal() {
   if (inputCustomProductName) inputCustomProductName.value = '';
   if (inputCustomProductPrice) inputCustomProductPrice.value = '';
   if (inputCustomProductDiscount) inputCustomProductDiscount.value = '';
+  if (inputCustomProductDiscount2) inputCustomProductDiscount2.value = '';
   updateAddProductPricePreview();
   setTimeout(() => {
     if (inputCustomProductName) inputCustomProductName.focus();
@@ -1203,14 +1273,19 @@ if (inputCustomProductDiscount) {
   });
 }
 
+if (inputCustomProductDiscount2) {
+  inputCustomProductDiscount2.addEventListener('input', () => {
+    updateAddProductPricePreview();
+  });
+}
+
 if (btnConfirmAddProduct) {
   btnConfirmAddProduct.addEventListener('click', () => {
     const name = inputCustomProductName.value.trim();
     const price = parseRupiahInput(inputCustomProductPrice.value);
-    const rawDiscount = inputCustomProductDiscount ? parseFloat(inputCustomProductDiscount.value) : 0;
-    const discountVal = isNaN(rawDiscount) ? 0 : rawDiscount;
-    const clampedDiscount = Math.max(0, Math.min(100, discountVal));
-    const discountRatio = clampedDiscount / 100;
+    const d1Raw = inputCustomProductDiscount ? parseFloat(inputCustomProductDiscount.value) : 0;
+    const d2Raw = inputCustomProductDiscount2 ? parseFloat(inputCustomProductDiscount2.value) : 0;
+    const calc = calculateCompoundDiscountPrice(price, isNaN(d1Raw) ? 0 : d1Raw, isNaN(d2Raw) ? 0 : d2Raw);
 
     if (!name) {
       showToast('Silakan masukkan nama produk!', 'error');
@@ -1231,8 +1306,10 @@ if (btnConfirmAddProduct) {
       name: name,
       category: 'Lainnya',
       price: price,
-      discount: discountRatio,
-      discountLabel: clampedDiscount > 0 ? `-${Math.round(clampedDiscount)}%` : '',
+      discount: calc.netDiscountRatio,
+      discount1: calc.d1Ratio,
+      discount2: calc.d2Ratio,
+      discountLabel: calc.discountLabel,
       trend: 'same',
       lastMonthPrice: price,
       image: '',
@@ -1304,19 +1381,24 @@ function saveProductEditToStorage(productId, updatedFields) {
 
 function updateEditProductPricePreview() {
   const price = parseRupiahInput(inputEditProductPrice ? inputEditProductPrice.value : '') || 0;
-  const rawDiscount = inputEditProductDiscount ? parseFloat(inputEditProductDiscount.value) : 0;
-  const discountVal = isNaN(rawDiscount) ? 0 : rawDiscount;
-  const clampedDiscount = Math.max(0, Math.min(100, discountVal));
-  const discountRatio = clampedDiscount / 100;
-  const finalPrice = Math.round(price - (price * discountRatio));
+  const d1Raw = inputEditProductDiscount ? parseFloat(inputEditProductDiscount.value) : 0;
+  const d2Raw = inputEditProductDiscount2 ? parseFloat(inputEditProductDiscount2.value) : 0;
+  const calc = calculateCompoundDiscountPrice(price, isNaN(d1Raw) ? 0 : d1Raw, isNaN(d2Raw) ? 0 : d2Raw);
 
   if (editPriceFinalPreview) {
-    if (price > 0) {
-      if (clampedDiscount > 0) {
-        const hemat = price - finalPrice;
-        editPriceFinalPreview.innerHTML = `${formatRupiah(finalPrice)} <span style="font-size:11px; font-weight:600; color:#15803D; margin-left:4px;">(Hemat ${formatRupiah(hemat)})</span>`;
+    if (calc.hargaAwal > 0) {
+      if (calc.d1Pct > 0 || calc.d2Pct > 0) {
+        let tag = '';
+        if (calc.d1Pct > 0 && calc.d2Pct > 0) {
+          tag = `Diskon ${calc.d1Pct}% + ${calc.d2Pct}%`;
+        } else if (calc.d1Pct > 0) {
+          tag = `Diskon ${calc.d1Pct}%`;
+        } else {
+          tag = `Diskon ${calc.d2Pct}%`;
+        }
+        editPriceFinalPreview.innerHTML = `${formatRupiah(calc.hargaAkhir)} <span style="font-size:11px; font-weight:600; color:#15803D; margin-left:4px;">(Hemat ${formatRupiah(calc.hemat)} • ${tag})</span>`;
       } else {
-        editPriceFinalPreview.textContent = formatRupiah(finalPrice);
+        editPriceFinalPreview.textContent = formatRupiah(calc.hargaAkhir);
       }
     } else {
       editPriceFinalPreview.textContent = 'Rp 0';
@@ -1331,8 +1413,26 @@ function openEditProductModal(product) {
   if (editProductId) editProductId.value = product.id;
   if (inputEditProductName) inputEditProductName.value = product.name || '';
   if (inputEditProductPrice) inputEditProductPrice.value = product.price > 0 ? formatNumber(product.price) : '';
-  const currentDiscountPct = product.discount ? Math.round(product.discount * 100) : 0;
-  if (inputEditProductDiscount) inputEditProductDiscount.value = currentDiscountPct > 0 ? currentDiscountPct : '';
+
+  let initialD1 = 0;
+  let initialD2 = 0;
+
+  if (product.discount1 !== undefined || product.discount2 !== undefined) {
+    initialD1 = product.discount1 ? Math.round(product.discount1 * 100) : 0;
+    initialD2 = product.discount2 ? Math.round(product.discount2 * 100) : 0;
+  } else if (product.discountLabel && product.discountLabel.includes('+')) {
+    const parts = product.discountLabel.replace(/[^0-9+]/g, '').split('+');
+    if (parts.length >= 2) {
+      initialD1 = parseInt(parts[0], 10) || 0;
+      initialD2 = parseInt(parts[1], 10) || 0;
+    }
+  } else if (product.discount > 0) {
+    initialD1 = Math.round(product.discount * 100);
+    initialD2 = 0;
+  }
+
+  if (inputEditProductDiscount) inputEditProductDiscount.value = initialD1 > 0 ? initialD1 : '';
+  if (inputEditProductDiscount2) inputEditProductDiscount2.value = initialD2 > 0 ? initialD2 : '';
 
   updateEditProductPricePreview();
 
@@ -1364,6 +1464,12 @@ if (inputEditProductDiscount) {
   });
 }
 
+if (inputEditProductDiscount2) {
+  inputEditProductDiscount2.addEventListener('input', () => {
+    updateEditProductPricePreview();
+  });
+}
+
 if (btnCancelEditProduct) {
   btnCancelEditProduct.addEventListener('click', closeEditProductModal);
 }
@@ -1382,10 +1488,9 @@ if (btnConfirmEditProduct) {
 
     const newName = inputEditProductName ? inputEditProductName.value.trim() : currentEditingProduct.name;
     const newPrice = parseRupiahInput(inputEditProductPrice.value);
-    const rawDiscount = inputEditProductDiscount ? parseFloat(inputEditProductDiscount.value) : 0;
-    const discountVal = isNaN(rawDiscount) ? 0 : rawDiscount;
-    const clampedDiscount = Math.max(0, Math.min(100, discountVal));
-    const newDiscount = clampedDiscount / 100;
+    const d1Raw = inputEditProductDiscount ? parseFloat(inputEditProductDiscount.value) : 0;
+    const d2Raw = inputEditProductDiscount2 ? parseFloat(inputEditProductDiscount2.value) : 0;
+    const calc = calculateCompoundDiscountPrice(newPrice, isNaN(d1Raw) ? 0 : d1Raw, isNaN(d2Raw) ? 0 : d2Raw);
 
     if (!newName) {
       showToast('Nama produk tidak boleh kosong!', 'error');
@@ -1416,8 +1521,10 @@ if (btnConfirmEditProduct) {
     // Perbarui objek produk
     currentEditingProduct.name = newName;
     currentEditingProduct.price = newPrice;
-    currentEditingProduct.discount = newDiscount;
-    currentEditingProduct.discountLabel = clampedDiscount > 0 ? `-${Math.round(clampedDiscount)}%` : '';
+    currentEditingProduct.discount = calc.netDiscountRatio;
+    currentEditingProduct.discount1 = calc.d1Ratio;
+    currentEditingProduct.discount2 = calc.d2Ratio;
+    currentEditingProduct.discountLabel = calc.discountLabel;
     currentEditingProduct.trend = newTrend;
     currentEditingProduct.lastMonthPrice = referencePrice;
 
@@ -1426,6 +1533,8 @@ if (btnConfirmEditProduct) {
       name: currentEditingProduct.name,
       price: currentEditingProduct.price,
       discount: currentEditingProduct.discount,
+      discount1: currentEditingProduct.discount1,
+      discount2: currentEditingProduct.discount2,
       discountLabel: currentEditingProduct.discountLabel,
       trend: currentEditingProduct.trend,
       lastMonthPrice: currentEditingProduct.lastMonthPrice
@@ -1437,7 +1546,7 @@ if (btnConfirmEditProduct) {
       cartItem.name = currentEditingProduct.name;
       cartItem.originalPrice = currentEditingProduct.price;
       cartItem.discount = currentEditingProduct.discount;
-      cartItem.effectivePrice = newDiscount > 0 ? Math.round(newPrice - (newPrice * newDiscount)) : newPrice;
+      cartItem.effectivePrice = calc.hargaAkhir;
       updateBudgetAndColors();
       renderCart();
     }

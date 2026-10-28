@@ -1,5 +1,5 @@
 // Progressive Web App Service Worker
-const CACHE_NAME = 'shop-tracker-pwa-v8';
+const CACHE_NAME = 'shop-tracker-pwa-v9';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
