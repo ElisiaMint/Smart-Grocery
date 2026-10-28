@@ -632,6 +632,12 @@ const tabHistory = document.getElementById('tabHistory');
 const storeProductsList = document.getElementById('storeProductsList');
 const cartItemsContainer = document.getElementById('cartItemsContainer');
 const historyContainer = document.getElementById('historyContainer');
+const historyTopBar = document.getElementById('historyTopBar');
+const historyCountBadge = document.getElementById('historyCountBadge');
+const btnResetHistory = document.getElementById('btnResetHistory');
+const resetHistoryModal = document.getElementById('resetHistoryModal');
+const btnCancelResetHistory = document.getElementById('btnCancelResetHistory');
+const btnConfirmResetHistory = document.getElementById('btnConfirmResetHistory');
 
 // List bottom bar
 const dynamicTotalPrice = document.getElementById('dynamicTotalPrice');
@@ -1731,7 +1737,7 @@ btnCheckout.addEventListener('click', () => {
   const remaining = state.initialBudget - totalSpent;
 
   const now = new Date();
-  const dateFormatted = `Today, ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  const dateFormatted = formatHistoryDateTime({ fullTimestamp: now.toISOString() });
 
   const historyRecord = {
     id: 'ord-' + Date.now(),
@@ -1777,19 +1783,52 @@ btnModalClose.addEventListener('click', () => {
 });
 
 /* ====================================================================
-   TAB 3: HISTORY
-   Format tiles: 
-   Today/Yesterday/Tanggal - Harga
-    --------------------
-    |Gambar barang| Nama barang
-    |	            |
-    |	            | Hargatotal   [] quantity 
-     ---------------------
+   TAB 3: HISTORY (FORMAT TANGGAL & JAM + RESET HISTORY)
    ==================================================================== */
+function formatHistoryDateTime(order) {
+  let dateObj = null;
+
+  if (order && order.fullTimestamp) {
+    const parsed = new Date(order.fullTimestamp);
+    if (!isNaN(parsed.getTime())) dateObj = parsed;
+  }
+
+  if (!dateObj && order && order.id && String(order.id).startsWith('ord-')) {
+    const ts = parseInt(String(order.id).replace('ord-', ''), 10);
+    if (!isNaN(ts) && ts > 0) {
+      const parsed = new Date(ts);
+      if (!isNaN(parsed.getTime())) dateObj = parsed;
+    }
+  }
+
+  if (!dateObj && order && order.dateString) {
+    const parsed = new Date(order.dateString);
+    if (!isNaN(parsed.getTime())) dateObj = parsed;
+  }
+
+  if (!dateObj) {
+    dateObj = new Date();
+  }
+
+  const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+  const dayName = days[dateObj.getDay()];
+  const dateNum = String(dateObj.getDate()).padStart(2, '0');
+  const monthName = months[dateObj.getMonth()];
+  const year = dateObj.getFullYear();
+  const hours = String(dateObj.getHours()).padStart(2, '0');
+  const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+
+  // Format: "Rabu, 28 Okt 2026 • 09:56"
+  return `${dayName}, ${dateNum} ${monthName} ${year} • ${hours}:${minutes}`;
+}
+
 function renderHistory() {
   historyContainer.innerHTML = '';
 
   if (state.history.length === 0) {
+    if (historyTopBar) historyTopBar.style.display = 'none';
     historyContainer.innerHTML = `
       <div class="empty-state">
         <div class="empty-state-icon">📜</div>
@@ -1800,6 +1839,9 @@ function renderHistory() {
     return;
   }
 
+  if (historyTopBar) historyTopBar.style.display = 'flex';
+  if (historyCountBadge) historyCountBadge.textContent = `${state.history.length} Transaksi`;
+
   state.history.forEach(order => {
     const cardGroup = document.createElement('div');
     cardGroup.className = 'history-card-group';
@@ -1808,8 +1850,8 @@ function renderHistory() {
     headerRow.className = 'history-header-row';
     headerRow.innerHTML = `
       <div class="history-date-badge">
-        <span>🕒</span>
-        <span>${order.dateString}</span>
+        <span>📅</span>
+        <span>${formatHistoryDateTime(order)}</span>
         <span class="history-store-tag">${order.store}</span>
       </div>
       <div class="history-total-spent">
@@ -1840,6 +1882,50 @@ function renderHistory() {
 
     cardGroup.appendChild(itemsList);
     historyContainer.appendChild(cardGroup);
+  });
+}
+
+function openResetHistoryModal() {
+  if (resetHistoryModal) resetHistoryModal.classList.add('show');
+}
+
+function closeResetHistoryModal() {
+  if (resetHistoryModal) resetHistoryModal.classList.remove('show');
+}
+
+if (btnResetHistory) {
+  btnResetHistory.addEventListener('click', openResetHistoryModal);
+}
+
+if (btnCancelResetHistory) {
+  btnCancelResetHistory.addEventListener('click', closeResetHistoryModal);
+}
+
+if (resetHistoryModal) {
+  resetHistoryModal.addEventListener('click', (e) => {
+    if (e.target === resetHistoryModal) {
+      closeResetHistoryModal();
+    }
+  });
+}
+
+if (btnConfirmResetHistory) {
+  btnConfirmResetHistory.addEventListener('click', async () => {
+    state.history = [];
+    saveHistoryToStorage();
+    renderHistory();
+    closeResetHistoryModal();
+
+    // Hapus juga di Firebase Cloud Firestore jika terhubung
+    if (window.FirebaseTracker && typeof window.FirebaseTracker.clearFirestoreHistory === 'function') {
+      try {
+        await window.FirebaseTracker.clearFirestoreHistory();
+      } catch (err) {
+        console.warn('Gagal menghapus riwayat di Firebase:', err);
+      }
+    }
+
+    showToast('Semua riwayat belanja berhasil direset! 🗑️', 'info');
   });
 }
 

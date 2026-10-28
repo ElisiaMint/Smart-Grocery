@@ -14,7 +14,8 @@ import {
   onSnapshot,
   serverTimestamp,
   doc,
-  setDoc
+  setDoc,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // Your web app's Firebase configuration
@@ -107,6 +108,27 @@ export function subscribeShoppingHistory(onUpdate, onError) {
   }
 }
 
+/**
+ * Hapus semua dokumen riwayat belanja dari Cloud Firestore
+ * @returns {Promise<{success: boolean, error?: any}>}
+ */
+export async function clearFirestoreHistory() {
+  try {
+    const historyCol = collection(db, "shopping_history");
+    const snapshot = await getDocs(historyCol);
+    const deletePromises = [];
+    snapshot.forEach(docSnap => {
+      deletePromises.push(deleteDoc(doc(db, "shopping_history", docSnap.id)));
+    });
+    await Promise.all(deletePromises);
+    console.log("🗑️ Berhasil menghapus semua riwayat belanja di Cloud Firestore");
+    return { success: true };
+  } catch (error) {
+    console.warn("⚠️ Gagal menghapus history Firestore:", error);
+    return { success: false, error };
+  }
+}
+
 // Pasang ke window object agar bisa diakses langsung secara global
 window.FirebaseTracker = {
   app,
@@ -115,6 +137,7 @@ window.FirebaseTracker = {
   firebaseConfig,
   saveOrderToFirestore,
   subscribeShoppingHistory,
+  clearFirestoreHistory,
   isReady: true
 };
 
