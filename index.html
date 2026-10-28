@@ -177,18 +177,7 @@
           <!-- TAB 1: STORE -->
           <div id="tabStore" class="tab-content active" role="tabpanel">
             <div class="store-tab-scroll">
-              <div class="store-banner">
-                <div class="store-banner-text">
-                  Katalog Resmi <b id="bannerStoreName">Indomaret</b>
-                </div>
-                <div class="legend-chips" title="Perbandingan harga bulan lalu">
-                  <span class="legend-tag up">⬆ Naik</span>
-                  <span class="legend-tag down">⬇︎ Turun</span>
-                  <span class="legend-tag same">= Tetap</span>
-                </div>
-              </div>
-
-              <!-- Menu Pencarian Produk (Search Bar) -->
+              <!-- Menu Pencarian Produk (Search Bar - Pinned di bawah bar navigasi Store, List, History) -->
               <div class="store-search-wrap">
                 <div class="store-search-box">
                   <span class="search-icon" aria-hidden="true">🔍</span>
@@ -201,6 +190,17 @@
                     aria-label="Cari produk di katalog"
                   >
                   <button type="button" class="btn-clear-search" id="btnClearSearch" title="Hapus pencarian" style="display:none;" aria-label="Hapus pencarian">✕</button>
+                </div>
+              </div>
+
+              <div class="store-banner">
+                <div class="store-banner-text">
+                  Katalog Resmi <b id="bannerStoreName">Indomaret</b>
+                </div>
+                <div class="legend-chips" title="Perbandingan harga bulan lalu">
+                  <span class="legend-tag up">⬆ Naik</span>
+                  <span class="legend-tag down">⬇︎ Turun</span>
+                  <span class="legend-tag same">= Tetap</span>
                 </div>
               </div>
 
@@ -579,6 +579,6 @@
   <!-- Load Firebase Module First -->
   <script type="module" src="firebase.js"></script>
   <!-- Load Main Application Logic -->
-  <script src="app.js?v=3.0"></script>
+  <script src="app.js?v=3.1"></script>
 </body>
 </html>

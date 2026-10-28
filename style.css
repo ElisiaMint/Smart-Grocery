@@ -453,7 +453,10 @@ select.form-input:focus, input.form-input:focus {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  z-index: 30;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  flex-shrink: 0;
 }
 
 .header-left {
@@ -551,6 +554,10 @@ select.form-input:focus, input.form-input:focus {
   padding: 6px 14px;
   border-bottom: 1px solid var(--bg-cream-border);
   gap: 8px;
+  position: sticky;
+  top: 0;
+  z-index: 35;
+  flex-shrink: 0;
 }
 
 .tab-btn {
@@ -591,10 +598,11 @@ select.form-input:focus, input.form-input:focus {
 /* Tab Content View Area */
 .tab-views-container {
   flex: 1;
-  overflow-y: auto;
+  overflow: hidden;
   position: relative;
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
 .tab-content {
@@ -660,11 +668,18 @@ select.form-input:focus, input.form-input:focus {
 
 /* ====================================================================
    MENU PENCARIAN PRODUK (SEARCH BAR)
-   Ditempatkan di bawah tulisan Katalog Resmi
+   Ditempatkan di bawah bar navigasi Store, List, History & Pinned saat scroll
    ==================================================================== */
 .store-search-wrap {
-  width: 100%;
-  margin: 1px 0 2px;
+  width: calc(100% + 32px);
+  margin: -14px -16px 4px -16px;
+  padding: 10px 16px 10px 16px;
+  position: sticky;
+  top: -14px;
+  z-index: 25;
+  background-color: var(--bg-cream-soft);
+  border-bottom: 1px solid rgba(230, 215, 203, 0.75);
+  box-shadow: 0 4px 10px rgba(98, 43, 20, 0.04);
 }
 
 .store-search-box {
